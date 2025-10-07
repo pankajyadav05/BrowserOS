@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linux AppImage packaging module for BrowserOS
+Linux AppImage packaging module for Mitria
 """
 
 import os
@@ -40,7 +40,7 @@ def prepare_appdir(ctx: BuildContext, appdir: Path) -> bool:
 
     # Essential files to copy
     files_to_copy = [
-        ctx.NXTSCAPE_APP_NAME,  # This will be "browseros" on Linux
+        ctx.NXTSCAPE_APP_NAME,  # This will be "mitria" on Linux
         "chrome_crashpad_handler",
         "chrome_sandbox",
         "chromedriver",
@@ -90,7 +90,7 @@ def prepare_appdir(ctx: BuildContext, appdir: Path) -> bool:
     # Create desktop file
     desktop_content = f"""[Desktop Entry]
 Version=1.0
-Name=BrowserOS
+Name=Mitria
 GenericName=Web Browser
 Comment=Browse the World Wide Web
 Exec=/opt/browseros/{ctx.NXTSCAPE_APP_NAME} %U

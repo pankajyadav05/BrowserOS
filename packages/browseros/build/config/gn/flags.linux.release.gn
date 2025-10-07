@@ -1,4 +1,4 @@
-# Minimal Linux Release Build Flags for BrowserOS
+# Minimal Linux Release Build Flags for Mitria
 
 # Build type
 is_debug = false

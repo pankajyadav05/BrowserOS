@@ -39,7 +39,7 @@ class BuildContext:
     # App names - will be set based on platform
     CHROMIUM_APP_NAME: str = ""
     NXTSCAPE_APP_NAME: str = ""
-    NXTSCAPE_APP_BASE_NAME: str = "BrowserOS"  # Base name without extension
+    NXTSCAPE_APP_BASE_NAME: str = "Mitria"  # Base name without extension
 
     # Third party
     SPARKLE_VERSION: str = "2.7.0"
