@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DIR="packages/browseros-agent"
-BRANCH="${1:-main}"
+BRANCH="${1:-main}"cur
 
 git -C "$DIR" fetch origin "$BRANCH" --tags
 git -C "$DIR" checkout -q "$BRANCH"
