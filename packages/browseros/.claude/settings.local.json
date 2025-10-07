@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//b/projects/codifyit/BrowserOS/**)",
+      "Bash(git submodule:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

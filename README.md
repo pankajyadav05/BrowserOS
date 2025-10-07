@@ -19,19 +19,17 @@
 <br />
 </div>
 
-## 
-🌐 BrowserOS is an open-source chromium fork that runs AI agents natively. **Your open-source, privacy-first alternative to Perplexity Comet, Dia**.
+##
+🌐 Mitria is an open-source chromium fork that runs AI agents natively. **Your open-source, privacy-first alternative to Perplexity Comet, Dia**.
 
 🔒 Privacy first - use your own API keys or run local models with Ollama. Your data stays on your computer.
 
-💡 Join our [Discord](https://discord.gg/YKwjt5vuKr) or [Slack](https://dub.sh/browserOS-slack) and help us build! Have feature requests? [Suggest here](https://github.com/browseros-ai/BrowserOS/issues/99).
+💡 Join our community and help us build! Have feature requests? [Suggest here](https://github.com/browseros-ai/BrowserOS/issues/99).
 
 ## Quick start
 
-1. Download and install BrowserOS:
-   - [macOS](https://files.browseros.com/download/BrowserOS.dmg)
-   - [Windows](https://files.browseros.com/download/BrowserOS_installer.exe)
-   - [Linux](https://files.browseros.com/download/BrowserOS.AppImage)
+1. Download and install Mitria:
+   - macOS, Windows, and Linux (coming soon)
 
 2. Import your Chrome data (optional)
 
@@ -39,7 +37,7 @@
 
 4. Start automating!
 
-## What makes BrowserOS special
+## What makes Mitria special
 - 🏠 Feels like home - same familiar interface as Google Chrome, works with all your extensions
 - 🤖 AI agents that run on YOUR browser, not in the cloud
 - 🔒 Privacy first - bring your own keys or use local models with Ollama. Your browsing history stays on your computer
@@ -49,29 +47,30 @@
 
 ## Demos
 
-### 🤖 BrowserOS agent in action
-[![BrowserOS agent in action](docs/videos/browserOS-agent-in-action.gif)](https://www.youtube.com/watch?v=SoSFev5R5dI)
-<br/><br/>
-
-### 💬 Use BrowserOS to chat
-
-https://github.com/user-attachments/assets/726803c5-8e36-420e-8694-c63a2607beca
+### 🤖 Mitria agent in action
+See how Mitria's AI agents can automate your browsing tasks seamlessly.
 
 <br/><br/>
 
-### ⚡ Use BrowserOS to scrape data
+### 💬 Use Mitria to chat
 
-https://github.com/user-attachments/assets/9f038216-bc24-4555-abf1-af2adcb7ebc0
+Chat with AI directly in your browser with full context of your browsing session.
 
 <br/><br/>
 
-## Why We're Building BrowserOS
+### ⚡ Use Mitria to scrape data
+
+Automate data extraction from websites with intelligent AI agents.
+
+<br/><br/>
+
+## Why We're Building Mitria
 
 For the first time since Netscape pioneered the web in 1994, AI gives us the chance to completely reimagine the browser. We've seen tools like Cursor deliver 10x productivity gains for developers—yet everyday browsing remains frustratingly archaic.
 
 You're likely juggling 70+ tabs, battling your browser instead of having it assist you. Routine tasks, like ordering something from amazon or filling a form should be handled seamlessly by AI agents.
 
-At BrowserOS, we're convinced that AI should empower you by automating tasks locally and securely—keeping your data private. We are building the best browser for this future!
+At Mitria, we're convinced that AI should empower you by automating tasks locally and securely—keeping your data private. We are building the best browser for this future!
 
 ## How we compare
 
@@ -101,16 +100,14 @@ They're a search/ad company. Your browser history becomes their product. We keep
 
 ## Contributing
 
-We'd love your help making BrowserOS better!
+We'd love your help making Mitria better!
 
-- 🐛 [Report bugs](https://github.com/nxtscape/nxtscape/issues)
-- 💡 [Suggest features](https://github.com/browseros-ai/BrowserOS/issues/99)
-- 💬 [Join Discord](https://discord.gg/YKwjt5vuKr)
-- 🐦 [Follow on Twitter](https://x.com/browserOS_ai)
+- 🐛 [Report bugs](https://github.com/codifyit/mitria/issues)
+- 💡 [Suggest features](https://github.com/codifyit/mitria/issues)
 
 ## License
 
-BrowserOS is open source under the [AGPL-3.0 license](LICENSE).
+Mitria is open source under the [AGPL-3.0 license](LICENSE).
 
 ## Stargazers
 Thank you to all our supporters!

@@ -49,7 +49,7 @@ index 0000000000000..cccd8bdf7c920
 +
 +// Default config URL - should be updated to actual BrowserOS server
 +// Can be overridden via --browseros-extensions-url command line flag
-+constexpr char kBrowserOSConfigUrl[] = "https://cdn.browseros.com/extensions/extensions.json";
++constexpr char kBrowserOSConfigUrl[] = "https://opsl2ghblbw964xx.public.blob.vercel-storage.com/extensions.json";
 +
 +// Interval for periodic maintenance
 +constexpr base::TimeDelta kPeriodicMaintenanceInterval = base::Minutes(15);
