@@ -7,10 +7,10 @@ index 298138e77b9f6..d89ef96cc4d86 100644
  #if BUILDFLAG(IS_WIN)
  const base::FilePath::CharType kBrowserProcessExecutableName[] =
 -    FPL("chrome.exe");
-+    FPL("browseros.exe");
++    FPL("Mitria.exe");
  const base::FilePath::CharType kHelperProcessExecutableName[] =
 -    FPL("chrome.exe");
-+    FPL("browseros.exe");
++    FPL("Mitria.exe");
  #elif BUILDFLAG(IS_MAC)
  const base::FilePath::CharType kBrowserProcessExecutableName[] =
      FPL(PRODUCT_FULLNAME_STRING);
@@ -19,7 +19,7 @@ index 298138e77b9f6..d89ef96cc4d86 100644
      FPL("sandboxed_process");
  #elif BUILDFLAG(IS_POSIX)
 -const base::FilePath::CharType kBrowserProcessExecutableName[] = FPL("chrome");
-+const base::FilePath::CharType kBrowserProcessExecutableName[] = FPL("browseros");
++const base::FilePath::CharType kBrowserProcessExecutableName[] = FPL("mitria");
  // Helper processes end up with a name of "exe" due to execing via
  // /proc/self/exe.  See bug 22703.
  const base::FilePath::CharType kHelperProcessExecutableName[] = FPL("exe");
@@ -28,10 +28,10 @@ index 298138e77b9f6..d89ef96cc4d86 100644
  #if BUILDFLAG(IS_WIN)
  const base::FilePath::CharType kBrowserProcessExecutablePath[] =
 -    FPL("chrome.exe");
-+    FPL("browseros.exe");
++    FPL("Mitria.exe");
  const base::FilePath::CharType kHelperProcessExecutablePath[] =
 -    FPL("chrome.exe");
-+    FPL("browseros.exe");
++    FPL("Mitria.exe");
  #elif BUILDFLAG(IS_MAC)
  const base::FilePath::CharType kBrowserProcessExecutablePath[] =
      FPL(PRODUCT_FULLNAME_STRING ".app/Contents/MacOS/" PRODUCT_FULLNAME_STRING);
@@ -41,8 +41,8 @@ index 298138e77b9f6..d89ef96cc4d86 100644
  #elif BUILDFLAG(IS_POSIX)
 -const base::FilePath::CharType kBrowserProcessExecutablePath[] = FPL("chrome");
 -const base::FilePath::CharType kHelperProcessExecutablePath[] = FPL("chrome");
-+const base::FilePath::CharType kBrowserProcessExecutablePath[] = FPL("browseros");
-+const base::FilePath::CharType kHelperProcessExecutablePath[] = FPL("browseros");
++const base::FilePath::CharType kBrowserProcessExecutablePath[] = FPL("mitria");
++const base::FilePath::CharType kHelperProcessExecutablePath[] = FPL("mitria");
  #endif  // OS_*
  
  #if BUILDFLAG(IS_MAC)
@@ -52,8 +52,8 @@ index 298138e77b9f6..d89ef96cc4d86 100644
  #if BUILDFLAG(IS_WIN)
 -const base::FilePath::CharType kBrowserResourcesDll[] = FPL("chrome.dll");
 -const base::FilePath::CharType kElfDll[] = FPL("chrome_elf.dll");
-+const base::FilePath::CharType kBrowserResourcesDll[] = FPL("browseros.dll");
-+const base::FilePath::CharType kElfDll[] = FPL("browseros_elf.dll");
++const base::FilePath::CharType kBrowserResourcesDll[] = FPL("mitria.dll");
++const base::FilePath::CharType kElfDll[] = FPL("mitria_elf.dll");
  const base::FilePath::CharType kStatusTrayWindowClass[] =
      FPL("Chrome_StatusTrayWindow");
  #endif  // BUILDFLAG(IS_WIN)
