@@ -3,7 +3,9 @@
     "allow": [
       "Read(//b/projects/codifyit/BrowserOS/**)",
       "Bash(git submodule:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:opsl2ghblbw964xx.public.blob.vercel-storage.com)",
+      "Read(//b/projects/codifyit/browseros-agent/**)"
     ],
     "deny": [],
     "ask": []
