@@ -5,7 +5,8 @@
       "Bash(git submodule:*)",
       "Bash(cat:*)",
       "WebFetch(domain:opsl2ghblbw964xx.public.blob.vercel-storage.com)",
-      "Read(//b/projects/codifyit/browseros-agent/**)"
+      "Read(//b/projects/codifyit/browseros-agent/**)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

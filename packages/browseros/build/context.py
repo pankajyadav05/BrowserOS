@@ -34,6 +34,7 @@ class BuildContext:
     chromium_version: str = ""
     nxtscape_version: str = ""
     nxtscape_chromium_version: str = ""
+    mitria_version: str = ""
     start_time: float = 0.0
 
     # App names - will be set based on platform
@@ -90,6 +91,14 @@ class BuildContext:
             )
             if version_file.exists():
                 self.nxtscape_version = version_file.read_text().strip()
+
+        if not self.mitria_version:
+            # Read from MITRIA_VERSION file
+            version_file = join_paths(
+                self.root_dir, "build", "config", "MITRIA_VERSION"
+            )
+            if version_file.exists():
+                self.mitria_version = version_file.read_text().strip()
 
         # Set nxtscape_chromium_version as chromium version with BUILD + nxtscape_version
         if self.chromium_version and self.nxtscape_version and version_dict:
@@ -233,7 +242,11 @@ class BuildContext:
 
     def get_dist_dir(self) -> Path:
         """Get distribution output directory with version"""
-        return join_paths(self.root_dir, "dist", self.nxtscape_version)
+        # Structure: dist/61/1/ where 61 is nxtscape_version and 1 is mitria_version
+        if self.mitria_version:
+            return join_paths(self.root_dir, "dist", self.nxtscape_version, self.mitria_version)
+        else:
+            return join_paths(self.root_dir, "dist", self.nxtscape_version)
 
     # Dev CLI specific methods
     def get_dev_patches_dir(self) -> Path:
