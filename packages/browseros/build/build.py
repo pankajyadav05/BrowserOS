@@ -273,7 +273,9 @@ def build_main(
             )
 
             log_info(f"📍 Chromium: {ctx.chromium_version}")
-            log_info(f"📍 Nxtscape: {ctx.nxtscape_version}")
+            log_info(f"📍 Mitria: {ctx.mitria_version}")
+            log_info(f"📍 Build Number: {ctx.nxtscape_version}")
+            log_info(f"📍 Full Version: {ctx.nxtscape_chromium_version}")
             log_info(f"📍 Output directory: {ctx.out_dir}")
 
             # Clean (only for first architecture to avoid conflicts)

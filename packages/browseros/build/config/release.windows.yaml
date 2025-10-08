@@ -25,7 +25,7 @@ env:
 
 # Signing configuration (using eSigner CKA certificate in Windows store)
 signing:
-  certificate_name: "FELAFAX, INC." # Your certificate subject name from SSL.com
+  certificate_name: "Mitria Development" # Your certificate subject name from SSL.com
   # Or use environment variable:
   # require_env_vars:
   #   - WINDOWS_CERTIFICATE_NAME
