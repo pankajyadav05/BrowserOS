@@ -11,3 +11,5 @@ gclient.json
 
 **/node_modules
 **/dist
+
+**/.venv
