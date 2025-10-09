@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(for patch in \"browseros-metrics.patch\" \"mac-sparkle-updater.patch\" \"add-sparkle-info-plist-keys.patch\")",
+      "Bash(do if [ -f \"browseros/$patch\" ])",
+      "Bash(then echo \"✅ browseros/$patch EXISTS\")",
+      "Bash(else echo \"❌ browseros/$patch MISSING\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(while read patch)",
+      "Bash(do echo \"Moving $patch\")",
+      "Bash(find:*)",
+      "Bash(while read file)",
+      "Bash(do echo \"Deleting corrupted file: $file\")",
+      "Bash(if [ -d \"old\" ])",
+      "Bash(then echo \"old/ EXISTS\")",
+      "Bash(else echo \"old/ was DELETED\")",
+      "Bash(node -e \"\nconst crypto = require(''crypto'');\nconst key = ''MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs1zULZz5eE0U8SEjr/R++dlx6WKFj7GbpnBiE1n17gaylMWDlw6uuBJNjcRrSGwOt53Z3PKf2T3g5DtNES8q6rQc11P/y8J8GKhKuqGrtRJyk5iXzcKJk4CHz6leFSMt8CsZY0r0b7wCZ5QuhomTHGQpNWNS0c13xfVqWt4dncfIRj7fMzfTkicq7Mqqx+JcdprLkiVfETvdkMwwEWmSNwQ6nCDzLtTbyyMiGUEBSJs+WlP1fO7LIX0sHesFVxfPhCZ2K4F1biwenbRL+YYD60ogpVppop2ee/W3D211IN1zYxgnhycFv3m8TrzG+MD/IZgcu13u0bHRn3V7IGW1iwIDAQAB'';\nconst hash = crypto.createHash(''sha256'').update(Buffer.from(key, ''base64'')).digest();\nconst id = Array.from(hash.slice(0, 16)).map(b => String.fromCharCode(97 + (b % 26))).join('''');\nconsole.log(''Extension ID:'', id);\n\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
