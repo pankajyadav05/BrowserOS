@@ -13,7 +13,7 @@ diff --git a/components/vector_icons/BUILD.gn b/components/vector_icons/BUILD.gn
 index 39a87dbfb84be..fa3133044763a 100644
 --- a/components/vector_icons/BUILD.gn
 +++ b/components/vector_icons/BUILD.gn
-@@ -56,9 +56,11 @@ if (current_toolchain == default_toolchain) {
+@@ -56,10 +56,11 @@ if (current_toolchain == default_toolchain) {
        "certificate.icon",
        "certificate_off.icon",
        "chat.icon",
@@ -24,6 +24,7 @@ index 39a87dbfb84be..fa3133044763a 100644
        "close.icon",
        "close_chrome_refresh.icon",
        "close_rounded.icon",
+       "cloud.icon",
 diff --git a/components/vector_icons/chat_orange.icon b/components/vector_icons/chat_orange.icon
 new file mode 100644
 index 0000000000000..255a41ae79134

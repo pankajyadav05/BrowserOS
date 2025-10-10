@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-String replacement module for BrowserOS build system
+String replacement module for Mitria build system
 """
 
 import re

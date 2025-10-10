@@ -1,25 +1,28 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Mitria <noreply@mitria.com>
 Date: Thu, 9 Oct 2025 12:30:00 -0700
-Subject: [PATCH] Add Mitria extension constants (AI Agent only)
+Subject: [PATCH] Add Mitria extension constants and pinning helpers
 
 ---
- .../browseros_extension_constants.h           | 28 +++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ .../browseros_extension_constants.h           | 39 +++++++++++++++++++
+ 1 file changed, 39 insertions(+)
  create mode 100644 chrome/browser/extensions/browseros_extension_constants.h
 
 diff --git a/chrome/browser/extensions/browseros_extension_constants.h b/chrome/browser/extensions/browseros_extension_constants.h
 new file mode 100644
-index 0000000000000..1a2b3c4d5e6f7
+index 0000000000000..2f8a9b0c1d3e4
 --- /dev/null
 +++ b/chrome/browser/extensions/browseros_extension_constants.h
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,39 @@
 +// Copyright 2024 The Chromium Authors
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
 +
 +#ifndef CHROME_BROWSER_EXTENSIONS_BROWSEROS_EXTENSION_CONSTANTS_H_
 +#define CHROME_BROWSER_EXTENSIONS_BROWSEROS_EXTENSION_CONSTANTS_H_
++
++#include <string>
++#include <vector>
 +
 +namespace extensions {
 +namespace browseros {
@@ -37,6 +40,16 @@ index 0000000000000..1a2b3c4d5e6f7
 +// Check if an extension is a Mitria extension
 +inline bool IsBrowserOSExtension(const std::string& extension_id) {
 +  return extension_id == kAISidePanelExtensionId;
++}
++
++// Check if an extension can be uninstalled (false for Mitria extensions)
++inline bool CanUninstallExtension(const std::string& extension_id) {
++  return !IsBrowserOSExtension(extension_id);
++}
++
++// Get all Mitria extension IDs
++inline std::vector<std::string> GetBrowserOSExtensionIds() {
++  return {kAISidePanelExtensionId};
 +}
 +
 +}  // namespace browseros

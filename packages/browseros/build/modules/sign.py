@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Application signing and notarization module for BrowserOS
+Application signing and notarization module for Mitria
 NOTE: This module is macOS-specific. Windows signing would require signtool.exe
 """
 
@@ -118,11 +118,11 @@ def find_components_to_sign(
 
     framework_path = join_paths(app_path, "Contents", "Frameworks")
 
-    # Check both versioned and non-versioned paths for BrowserOS Framework
+    # Check both versioned and non-versioned paths for Mitria Framework
     # Handle both release and debug framework names
     framework_names = [
-        "BrowserOS Framework.framework",
-        "BrowserOS Dev Framework.framework",
+        "Mitria Framework.framework",
+        "Mitria Dev Framework.framework",
     ]
     nxtscape_framework_paths = []
 
@@ -171,7 +171,7 @@ def find_components_to_sign(
                 if autoupdate.exists() and autoupdate.is_file():
                     components["executables"].append(autoupdate)
 
-    # Find all dylibs (check versioned path for BrowserOS Framework libraries)
+    # Find all dylibs (check versioned path for Mitria Framework libraries)
     for nxtscape_fw_path in nxtscape_framework_paths:
         libraries_dir = join_paths(nxtscape_fw_path, "Libraries")
         if libraries_dir.exists():
@@ -191,7 +191,7 @@ def find_components_to_sign(
 
 
 def get_identifier_for_component(
-    component_path: Path, base_identifier: str = "com.browseros"
+    component_path: Path, base_identifier: str = "com.mitria"
 ) -> str:
     """Generate identifier for a component based on its path and name"""
     name = component_path.stem
@@ -224,7 +224,7 @@ def get_identifier_for_component(
 
     # For frameworks
     if component_path.suffix == ".framework":
-        if name == "BrowserOS Framework" or name == "BrowserOS Dev Framework":
+        if name == "Mitria Framework" or name == "Mitria Dev Framework":
             return f"{base_identifier}.framework"
         else:
             return f"{base_identifier}.{name.replace(' ', '_').lower()}"
@@ -373,10 +373,10 @@ def sign_all_components(
             ):
                 return False
 
-    # 6. Sign frameworks (except the main BrowserOS Framework)
+    # 6. Sign frameworks (except the main Mitria Framework)
     if components["frameworks"]:
         log_info("\n🔏 Signing frameworks...")
-        # Sort to sign Sparkle.framework before BrowserOS Framework.framework
+        # Sort to sign Sparkle.framework before Mitria Framework.framework
         frameworks_sorted = sorted(
             components["frameworks"], key=lambda x: 0 if "Sparkle" in x.name else 1
         )
@@ -388,7 +388,7 @@ def sign_all_components(
     # 7. Sign main executable
     log_info("\n🔏 Signing main executable...")
     # Handle both release and debug executable names
-    main_exe_names = ["BrowserOS", "BrowserOS Dev"]
+    main_exe_names = ["Mitria", "Mitria Dev"]
     main_exe = None
     for exe_name in main_exe_names:
         exe_path = join_paths(app_path, "Contents", "MacOS", exe_name)
@@ -402,13 +402,13 @@ def sign_all_components(
         )
         return False
 
-    if not sign_component(main_exe, certificate_name, "com.browseros.BrowserOS"):
+    if not sign_component(main_exe, certificate_name, "com.mitria.Mitria"):
         return False
 
     # 8. Finally sign the app bundle
     log_info("\n🔏 Signing application bundle...")
     requirements = (
-        '=designated => identifier "com.browseros.BrowserOS" and '
+        '=designated => identifier "com.mitria.Mitria" and '
         "anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and "
         "certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */"
     )
@@ -449,7 +449,7 @@ def sign_all_components(
         "--force",
         "--timestamp",
         "--identifier",
-        "com.browseros.BrowserOS",
+        "com.mitria.Mitria",
         "--options",
         "restrict,library,runtime,kill",
         "--requirements",
@@ -600,7 +600,7 @@ def notarize_app(
 def sign_app(ctx: BuildContext, create_dmg: bool = True) -> bool:
     """Main signing function that uses BuildContext from build.py"""
     log_info("=" * 70)
-    log_info("🚀 Starting signing process for BrowserOS...")
+    log_info("🚀 Starting signing process for Mitria...")
     log_info("=" * 70)
 
     # Error tracking similar to bash script
@@ -668,7 +668,7 @@ def sign_app(ctx: BuildContext, create_dmg: bool = True) -> bool:
                 app_path=app_path,
                 dmg_path=dmg_path,
                 certificate_name=env_vars["certificate_name"],
-                volume_name="BrowserOS",
+                volume_name="Mitria",
                 pkg_dmg_path=pkg_dmg_path,
                 keychain_profile="notarytool-profile",
             ):

@@ -205,7 +205,7 @@ def create_appimage(ctx: BuildContext, appdir: Path, output_path: Path) -> bool:
 
 
 def package(ctx: BuildContext) -> bool:
-    """Package BrowserOS for Linux as AppImage"""
+    """Package Mitria for Linux as AppImage"""
     log_info(
         f"📦 Packaging {ctx.NXTSCAPE_APP_BASE_NAME} {ctx.get_nxtscape_chromium_version()} for Linux ({ctx.architecture})"
     )
