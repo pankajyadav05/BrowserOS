@@ -11,7 +11,6 @@ browseros/browseros-api.patch
 browseros/browseros-api-updates.patch
 browseros/mac-sparkle-updater.patch
 browseros/add-sparkle-info-plist-keys.patch
-browseros/adding-new-vector-icons.patch
 browseros/branding-file-updates.patch
 browseros/disable-sidepanel-animation.patch
 browseros/disable-chrome-labs-pinning.patch

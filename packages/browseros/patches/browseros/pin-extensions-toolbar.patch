@@ -4,35 +4,12 @@ Date: Thu, 31 Jul 2025 13:09:23 -0700
 Subject: [PATCH] pin browseros extensions to extension toolbar
 
 ---
- .../browseros_extension_constants.h           | 13 +++++++++
  .../extension_context_menu_model.cc           |  4 ++-
  .../extensions/extension_management.cc        |  7 +++++
- .../ui/actions/browseros_actions_config.h     | 17 +++++++-----
  .../ui/toolbar/toolbar_actions_model.cc       | 13 +++++++++
  .../extension_side_panel_manager.cc           | 27 +++++++++++++++++++
- 6 files changed, 74 insertions(+), 7 deletions(-)
+ 4 files changed, 50 insertions(+), 1 deletion(-)
 
-diff --git a/chrome/browser/extensions/browseros_extension_constants.h b/chrome/browser/extensions/browseros_extension_constants.h
-index e71edb3e50137..79dc812fae32f 100644
---- a/chrome/browser/extensions/browseros_extension_constants.h
-+++ b/chrome/browser/extensions/browseros_extension_constants.h
-@@ -17,6 +17,17 @@ inline bool IsBrowserOSExtension(const std::string& extension_id) {
-   return extension_id == kAISidePanelExtensionId;
- }
-
-+// Check if an extension can be uninstalled (false for BrowserOS extensions)
-+inline bool CanUninstallExtension(const std::string& extension_id) {
-+  return !IsBrowserOSExtension(extension_id);
-+}
-+
-+// Get all BrowserOS extension IDs
-+inline std::vector<std::string> GetBrowserOSExtensionIds() {
-+  return {kAISidePanelExtensionId};
-+}
-+
- }  // namespace browseros
- }  // namespace extensions
- 
 diff --git a/chrome/browser/extensions/extension_context_menu_model.cc b/chrome/browser/extensions/extension_context_menu_model.cc
 index d5e3f14b43b44..1a3f546260abb 100644
 --- a/chrome/browser/extensions/extension_context_menu_model.cc
@@ -79,41 +56,7 @@ index ae782891ad341..393c6c78e372e 100644
 +  
    return force_pinned_list;
  }
- 
-diff --git a/chrome/browser/ui/actions/browseros_actions_config.h b/chrome/browser/ui/actions/browseros_actions_config.h
-index 4838a697b0028..3900759f40883 100644
---- a/chrome/browser/ui/actions/browseros_actions_config.h
-+++ b/chrome/browser/ui/actions/browseros_actions_config.h
-@@ -30,18 +30,23 @@ constexpr auto kBrowserOSNativeActionIds =
-         kActionSidePanelShowClashOfGpts,
-     });
- 
--// Extension IDs that behave like native BrowserOS panels
--constexpr auto kBrowserOSExtensionIds =
--    base::MakeFixedFlatSet<std::string_view>({
--        extensions::browseros::kAISidePanelExtensionId,
--    });
--
- // Check if an action ID is a BrowserOS action (native or extension)
- inline bool IsBrowserOSAction(actions::ActionId id) {
-   // Check native actions
-   if (kBrowserOSNativeActionIds.contains(id)) {
-     return true;
-   }
-+
-+  // Check extension actions using the allowed extensions from browseros constants
-+  for (const char* ext_id : extensions::browseros::kAllowedExtensions) {
-+    auto ext_action_id = actions::ActionIdMap::StringToActionId(
-+        SidePanelEntryKey(SidePanelEntryId::kExtension, std::string(ext_id))
-+            .ToString());
-+    if (ext_action_id && id == *ext_action_id) {
-+      return true;
-+    }
-+  }
-+
-   return false;
- }
- 
+
 diff --git a/chrome/browser/ui/toolbar/toolbar_actions_model.cc b/chrome/browser/ui/toolbar/toolbar_actions_model.cc
 index 8c748d7cc5fc1..2019fe0341327 100644
 --- a/chrome/browser/ui/toolbar/toolbar_actions_model.cc
