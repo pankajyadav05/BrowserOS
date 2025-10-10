@@ -8,18 +8,20 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 <br></br>
 <a href="https://files.browseros.com/download/BrowserOS.dmg">
-  <img src="https://img.shields.io/badge/Download-macOS-black?style=flat&logo=apple&logoColor=white" alt="Download for macOS (beta)" />
+<img src="https://img.shields.io/badge/Download-macOS-black?style=flat&logo=apple&logoColor=white" alt="Download for macOS (beta)" />
 </a>
 <a href="https://files.browseros.com/download/BrowserOS_installer.exe">
-  <img src="https://img.shields.io/badge/Download-Windows-0078D4?style=flat&logo=windows&logoColor=white" alt="Download for Windows (beta)" />
+<img src="https://img.shields.io/badge/Download-Windows-0078D4?style=flat&logo=windows&logoColor=white" alt="Download for Windows (beta)" />
 </a>
 <a href="https://files.browseros.com/download/BrowserOS.AppImage">
-  <img src="https://img.shields.io/badge/Download-Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Download for Linux (beta)" />
+<img src="https://img.shields.io/badge/Download-Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Download for Linux (beta)" />
 </a>
 <br />
+
 </div>
 
 ##
+
 🌐 Mitria is an open-source chromium fork that runs AI agents natively. **Your open-source, privacy-first alternative to Perplexity Comet, Dia**.
 
 🔒 Privacy first - use your own API keys or run local models with Ollama. Your data stays on your computer.
@@ -29,6 +31,7 @@
 ## Quick start
 
 1. Download and install Mitria:
+
    - macOS, Windows, and Linux (coming soon)
 
 2. Import your Chrome data (optional)
@@ -38,16 +41,18 @@
 4. Start automating!
 
 ## What makes Mitria special
+
 - 🏠 Feels like home - same familiar interface as Google Chrome, works with all your extensions
 - 🤖 AI agents that run on YOUR browser, not in the cloud
 - 🔒 Privacy first - bring your own keys or use local models with Ollama. Your browsing history stays on your computer
 - 🚀 Open source and community driven - see exactly what's happening under the hood
 - 🤝 MCP store to one-click install popular MCPs and use them directly in the browser bar
-- 🛡️ (coming soon) Built-in AI ad blocker that works across more scenarios!  
+- 🛡️ (coming soon) Built-in AI ad blocker that works across more scenarios!
 
 ## Demos
 
 ### 🤖 Mitria agent in action
+
 See how Mitria's AI agents can automate your browsing tasks seamlessly.
 
 <br/><br/>
@@ -110,12 +115,21 @@ We'd love your help making Mitria better!
 Mitria is open source under the [AGPL-3.0 license](LICENSE).
 
 ## Stargazers
+
 Thank you to all our supporters!
 
 [![Star History Chart](https://api.star-history.com/svg?repos=browseros-ai/BrowserOS&type=Date)](https://www.star-history.com/#browseros-ai/BrowserOS&Date)
 
-## 
+##
 
-<p align="center">
-Built with ❤️ from San Francisco
-</p>
+## Check patches
+
+bash apply-all-patches.sh ~/chromium/src
+
+powershell -ExecutionPolicy Bypass -File apply-all-patches.ps1 B:\projects\chromium\src
+
+## Clear directory
+
+git reset --hard HEAD ; git clean -fd
+
+git reset --hard HEAD && git clean -fd

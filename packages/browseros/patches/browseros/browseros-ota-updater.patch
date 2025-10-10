@@ -6,14 +6,13 @@ Subject: [PATCH] extensions ota updater
 ---
  chrome/browser/extensions/BUILD.gn            |   2 +
  .../extension_info_generator_shared.cc        |  41 +-
- .../browseros_extension_constants.h           |   2 +-
  .../extensions/browseros_external_loader.cc   | 579 ++++++++++++++++++
  .../extensions/browseros_external_loader.h    | 113 ++++
  .../chrome_extension_registrar_delegate.cc    |  10 +
  .../extension_web_ui_override_registrar.cc    |  24 +-
  .../extensions/external_provider_impl.cc      |  28 +
  .../settings_overridden_params_providers.cc   |  10 +
- 9 files changed, 804 insertions(+), 5 deletions(-)
+ 8 files changed, 804 insertions(+), 5 deletions(-)
  create mode 100644 chrome/browser/extensions/browseros_external_loader.cc
  create mode 100644 chrome/browser/extensions/browseros_external_loader.h
 
@@ -121,19 +120,6 @@ index e6c15e15d3157..c1e2b724f5f8f 100644
        }
      }
    };
-diff --git a/chrome/browser/extensions/browseros_extension_constants.h b/chrome/browser/extensions/browseros_extension_constants.h
-index 209020e21f247..e71edb3e50137 100644
---- a/chrome/browser/extensions/browseros_extension_constants.h
-+++ b/chrome/browser/extensions/browseros_extension_constants.h
-@@ -14,7 +14,7 @@ inline constexpr char kAISidePanelExtensionId[] =
- 
- // Bug Reporter Extension ID
- inline constexpr char kBugReporterExtensionId[] =
--    "jpajdgphofjhblkgpbemoelbnbinnpje";
-+    "adlpneommgkgeanpaekgoaolcpncohkf";
- 
- // Allowlist of BrowserOS extension IDs that are permitted to be installed
- // Only extensions with these IDs will be loaded from the config
 diff --git a/chrome/browser/extensions/browseros_external_loader.cc b/chrome/browser/extensions/browseros_external_loader.cc
 new file mode 100644
 index 0000000000000..cccd8bdf7c920
