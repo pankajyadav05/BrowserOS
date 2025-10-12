@@ -14,7 +14,6 @@ browseros/browseros-api-updates.patch
 browseros/mac-sparkle-updater.patch
 browseros/add-sparkle-info-plist-keys.patch
 browseros/branding-file-updates.patch
-browseros/mitria-branding-assets.patch
 browseros/disable-sidepanel-animation.patch
 browseros/disable-chrome-labs-pinning.patch
 browseros/pin-extensions-toolbar.patch

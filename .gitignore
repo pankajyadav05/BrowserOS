@@ -13,3 +13,5 @@ gclient.json
 **/dist
 
 **/.venv
+
+.claude/**
