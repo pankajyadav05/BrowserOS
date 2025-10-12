@@ -16,14 +16,14 @@ index d5e3f14b43b44..1a3f546260abb 100644
 +++ b/chrome/browser/extensions/extension_context_menu_model.cc
 @@ -7,6 +7,7 @@
  #include <memory>
- 
+
  #include "base/containers/contains.h"
 +#include "chrome/browser/extensions/browseros_extension_constants.h"
  #include "base/feature_list.h"
  #include "base/functional/bind.h"
  #include "base/metrics/histogram_macros.h"
 @@ -693,7 +694,8 @@ void ExtensionContextMenuModel::InitMenuWithFeature(
- 
+
    // Controls section.
    bool has_options_page = OptionsPageInfo::HasOptionsPage(extension);
 -  bool can_uninstall_extension = !is_component_ && !is_required_by_policy;
@@ -38,7 +38,7 @@ index ae782891ad341..393c6c78e372e 100644
 +++ b/chrome/browser/extensions/extension_management.cc
 @@ -14,6 +14,7 @@
  #include <utility>
- 
+
  #include "base/command_line.h"
 +#include "chrome/browser/extensions/browseros_extension_constants.h"
  #include "base/containers/contains.h"
@@ -48,12 +48,12 @@ index ae782891ad341..393c6c78e372e 100644
        force_pinned_list.insert(entry.first);
      }
    }
-+  
++
 +  // Always force-pin BrowserOS extensions
 +  for (const auto& extension_id : browseros::GetBrowserOSExtensionIds()) {
 +    force_pinned_list.insert(extension_id);
 +  }
-+  
++
    return force_pinned_list;
  }
 
@@ -71,13 +71,13 @@ index 8c748d7cc5fc1..2019fe0341327 100644
  #include "chrome/browser/extensions/profile_util.h"
 @@ -289,6 +290,11 @@ bool ToolbarActionsModel::IsActionPinned(const ActionId& action_id) const {
  }
- 
+
  bool ToolbarActionsModel::IsActionForcePinned(const ActionId& action_id) const {
 +  // Check if it's a BrowserOS extension
 +  if (extensions::browseros::IsBrowserOSExtension(action_id)) {
 +    return true;
 +  }
-+  
++
    auto* management =
        extensions::ExtensionManagementFactory::GetForBrowserContext(profile_);
    return base::Contains(management->GetForcePinnedList(), action_id);
@@ -85,14 +85,14 @@ index 8c748d7cc5fc1..2019fe0341327 100644
    std::ranges::copy_if(
        management->GetForcePinnedList(), std::back_inserter(pinned),
        [&pinned](const std::string& id) { return !base::Contains(pinned, id); });
-+      
++
 +  // Add BrowserOS extensions to the force-pinned list
 +  for (const char* ext_id : extensions::browseros::kAllowedExtensions) {
 +    if (!base::Contains(pinned, ext_id)) {
 +      pinned.push_back(ext_id);
 +    }
 +  }
- 
+
    // TODO(pbos): Make sure that the pinned IDs are pruned from ExtensionPrefs on
    // startup so that we don't keep saving stale IDs.
 diff --git a/chrome/browser/ui/views/side_panel/extensions/extension_side_panel_manager.cc b/chrome/browser/ui/views/side_panel/extensions/extension_side_panel_manager.cc
@@ -100,7 +100,7 @@ index 30d4b3bc95d1c..558e8f442d671 100644
 --- a/chrome/browser/ui/views/side_panel/extensions/extension_side_panel_manager.cc
 +++ b/chrome/browser/ui/views/side_panel/extensions/extension_side_panel_manager.cc
 @@ -6,6 +6,7 @@
- 
+
  #include "base/memory/scoped_refptr.h"
  #include "base/strings/utf_string_conversions.h"
 +#include "chrome/browser/extensions/browseros_extension_constants.h"
@@ -128,16 +128,16 @@ index 30d4b3bc95d1c..558e8f442d671 100644
 +    }
 +  }
  }
- 
+
  actions::ActionId ExtensionSidePanelManager::GetOrCreateActionIdForExtension(
 @@ -159,6 +169,23 @@ void ExtensionSidePanelManager::OnExtensionUnloaded(
      it->second->DeregisterEntry();
      coordinators_.erase(extension->id());
    }
-+  
++
 +  // Unpin BrowserOS extensions before removing the action item
 +  if (browseros::IsBrowserOSExtension(extension->id())) {
-+    LOG(INFO) << "browseros: Unpinning BrowserOS extension: " << extension->id() 
++    LOG(INFO) << "browseros: Unpinning BrowserOS extension: " << extension->id()
 +              << " reason: " << static_cast<int>(reason);
 +    if (auto* pinned_model = PinnedToolbarActionsModel::Get(profile_)) {
 +      // Get the action ID to unpin it
@@ -150,10 +150,10 @@ index 30d4b3bc95d1c..558e8f442d671 100644
 +      }
 +    }
 +  }
-+  
++
    MaybeRemoveActionItemForExtension(extension);
  }
- 
--- 
+
+--
 2.49.0
 

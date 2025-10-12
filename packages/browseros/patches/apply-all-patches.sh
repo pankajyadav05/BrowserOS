@@ -8,7 +8,7 @@ if [ -z "$1" ]; then
 fi
 
 CHROMIUM_SRC="$1"
-PATCHES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/browseros"
+PATCHES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERIES_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/series"
 
 if [ ! -d "$CHROMIUM_SRC" ]; then

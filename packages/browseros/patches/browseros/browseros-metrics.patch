@@ -50,12 +50,12 @@ index ea4e1a621b201..21a7a3aef2872 100644
  #include "components/metrics/content/content_stability_metrics_provider.h"
 @@ -1041,6 +1042,7 @@ void ChromeMetricsServiceClient::RegisterUKMProviders() {
  }
- 
+
  void ChromeMetricsServiceClient::NotifyApplicationNotIdle() {
 +  browseros_metrics::BrowserOSMetrics::Log("alive", 0.01);
    metrics_service_->OnApplicationNotIdle();
  }
- 
+
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 index 9a00400829ae1..c83cfdfe3708c 100644
 --- a/chrome/browser/prefs/browser_prefs.cc
@@ -146,7 +146,7 @@ index 0000000000000..a213967b46676
 +  }
 +
 +  const std::string& event_name = args[0].GetString();
-+  
++
 +  if (args.size() > 1) {
 +    // Has properties
 +    if (args[1].is_dict()) {
@@ -235,7 +235,7 @@ index 83e3f47da279e..67c338a86ccc8 100644
    AddSettingsPageUIHandler(std::make_unique<PasskeysHandler>());
  #endif
 +  AddSettingsPageUIHandler(std::make_unique<BrowserOSMetricsHandler>());
- 
+
  #if BUILDFLAG(IS_CHROMEOS)
    InitBrowserSettingsWebUIHandlers();
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
@@ -251,7 +251,7 @@ index 12f83b0cc1ab5..fb0a6d63e909a 100644
 +inline constexpr char kBrowserOSMetricsClientId[] =
 +    "browseros.metrics_client_id";
  }  // namespace prefs
- 
+
  #endif  // CHROME_COMMON_PREF_NAMES_H_
 diff --git a/components/metrics/browseros_metrics/BUILD.gn b/components/metrics/browseros_metrics/BUILD.gn
 new file mode 100644
@@ -352,19 +352,19 @@ index 0000000000000..02a1dc121bb7a
 +  if (!content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
 +    return nullptr;
 +  }
-+  
++
 +  // Get the profile manager
 +  ProfileManager* profile_manager = g_browser_process->profile_manager();
 +  if (!profile_manager) {
 +    return nullptr;
 +  }
-+  
++
 +  // Get the last used profile (or the default one)
 +  Profile* profile = profile_manager->GetLastUsedProfile();
 +  if (!profile || profile->IsOffTheRecord()) {
 +    return nullptr;
 +  }
-+  
++
 +  // Get the metrics service
 +  return BrowserOSMetricsServiceFactory::GetForBrowserContext(profile);
 +}
@@ -402,18 +402,18 @@ index 0000000000000..02a1dc121bb7a
 +  if (sample_rate <= 0.0 || sample_rate > 1.0) {
 +    return;
 +  }
-+  
++
 +  if (sample_rate < 1.0) {
 +    double random_value = base::RandDouble();
 +    if (random_value > sample_rate) {
 +      return;
 +    }
 +  }
-+  
++
 +  if (sample_rate < 1.0) {
 +    properties.Set("sample_rate", sample_rate);
 +  }
-+  
++
 +  // If we're already on the UI thread, log directly
 +  if (content::BrowserThread::CurrentlyOn(content::BrowserThread::UI)) {
 +    LogOnUIThread(event_name, std::move(properties));
@@ -454,13 +454,13 @@ index 0000000000000..73e98afdaa28a
 +  // sample_rate: 0.0 to 1.0, defaults to 1.0 (always log)
 +  // For example, sample_rate=0.1 means log only 10% of the time
 +  static void Log(const std::string& event_name, double sample_rate = 1.0);
-+  
++
 +  // Log an event with properties using initializer list
 +  // Example: Log("event", {{"key1", "value1"}, {"key2", 123}})
 +  static void Log(const std::string& event_name,
 +                  std::initializer_list<std::pair<std::string, base::Value>> properties,
 +                  double sample_rate = 1.0);
-+  
++
 +  // Log an event with pre-built properties dict
 +  static void Log(const std::string& event_name, base::Value::Dict properties,
 +                  double sample_rate = 1.0);
@@ -632,10 +632,10 @@ index 0000000000000..707ac50393820
 +  }
 +
 +  VLOG(1) << "browseros: Capturing event: " << event_name;
-+  
++
 +  // Add default properties
 +  AddDefaultProperties(properties);
-+  
++
 +  // Send to PostHog
 +  SendEventToPostHog(event_name, std::move(properties));
 +}
@@ -651,11 +651,11 @@ index 0000000000000..707ac50393820
 +
 +void BrowserOSMetricsService::InitializeClientId() {
 +  CHECK(pref_service_);
-+  
++
 +  // Check if we have an existing client ID
 +  const std::string& stored_id =
 +      pref_service_->GetString(prefs::kBrowserOSMetricsClientId);
-+  
++
 +  if (!stored_id.empty() && base::Uuid::ParseCaseInsensitive(stored_id).is_valid()) {
 +    client_id_ = stored_id;
 +    VLOG(1) << "browseros: Using existing metrics client ID";
@@ -677,7 +677,7 @@ index 0000000000000..707ac50393820
 +  payload.Set("event", "browseros.native." + event_name);
 +  payload.Set("distinct_id", client_id_);
 +  payload.Set("properties", std::move(properties));
-+  
++
 +  // Convert to JSON
 +  std::string json_payload;
 +  if (!base::JSONWriter::Write(payload, &json_payload)) {
@@ -691,13 +691,13 @@ index 0000000000000..707ac50393820
 +  resource_request->method = "POST";
 +  resource_request->load_flags = net::LOAD_DISABLE_CACHE;
 +  resource_request->credentials_mode = network::mojom::CredentialsMode::kOmit;
-+  
++
 +  // Create the URL loader
 +  auto url_loader = network::SimpleURLLoader::Create(
 +      std::move(resource_request), kBrowserOSMetricsTrafficAnnotation);
 +  url_loader->SetAllowHttpErrorResults(true);
 +  url_loader->AttachStringForUpload(json_payload, "application/json");
-+  
++
 +  // Send the request
 +  network::SimpleURLLoader* loader_ptr = url_loader.get();
 +  loader_ptr->DownloadToString(
@@ -714,7 +714,7 @@ index 0000000000000..707ac50393820
 +  if (loader->ResponseInfo() && loader->ResponseInfo()->headers) {
 +    response_code = loader->ResponseInfo()->headers->response_code();
 +  }
-+  
++
 +  if (response_code == net::HTTP_OK) {
 +    VLOG(2) << "browseros: Metrics event sent successfully";
 +  } else {
@@ -730,14 +730,14 @@ index 0000000000000..707ac50393820
 +    base::Value::Dict& properties) {
 +  // Add browser version
 +  properties.Set("$browser_version", version_info::GetVersionNumber());
-+  
++
 +  // Add OS information
 +  properties.Set("$os", base::SysInfo::OperatingSystemName());
 +  properties.Set("$os_version", base::SysInfo::OperatingSystemVersion());
-+  
++
 +  // Ensure anonymous tracking
 +  properties.Set("$process_person_profile", false);
-+  
++
 +  // Add platform architecture
 +  properties.Set("$arch", base::SysInfo::OperatingSystemArchitecture());
 +}
@@ -880,12 +880,12 @@ index 0000000000000..bddc97f6d9a05
 +BrowserOSMetricsServiceFactory::BuildServiceInstanceForBrowserContext(
 +    content::BrowserContext* context) const {
 +  Profile* profile = Profile::FromBrowserContext(context);
-+  
++
 +  // Don't create service for incognito profiles
 +  if (profile->IsOffTheRecord()) {
 +    return nullptr;
 +  }
-+  
++
 +  return std::make_unique<BrowserOSMetricsService>(
 +      profile->GetPrefs(),
 +      profile->GetDefaultStoragePartition()
@@ -949,6 +949,6 @@ index 0000000000000..014eb17aba442
 +
 +#endif  // COMPONENTS_METRICS_BROWSEROS_METRICS_BROWSEROS_METRICS_SERVICE_FACTORY_H_
 \ No newline at end of file
--- 
+--
 2.49.0
 

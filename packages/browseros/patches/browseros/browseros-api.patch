@@ -148,7 +148,7 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
 +
 +  // Enable accessibility if needed
@@ -244,17 +244,17 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Note: We don't need to get scale factors here!
 +  // The accessibility tree provides bounds in CSS pixels (logical pixels),
 +  // which is the correct coordinate space for ForwardMouseEvent.
 +  // The browser and renderer handle device pixel ratio conversion internally.
-+  
++
 +  // Store tab ID for mapping
 +  tab_id_ = tab_info->tab_id;
-+  
++
 +  // Get viewport size
 +  content::RenderWidgetHostView* rwhv = web_contents->GetRenderWidgetHostView();
 +  if (rwhv) {
@@ -310,7 +310,7 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
 +  int tab_id = tab_info->tab_id;
 +
@@ -319,20 +319,20 @@ index 0000000000000..31d54b9d0fb58
 +  if (tab_it == GetNodeIdMappings().end()) {
 +    return RespondNow(Error("No snapshot data for this tab"));
 +  }
-+  
++
 +  auto node_it = tab_it->second.find(params->node_id);
 +  if (node_it == tab_it->second.end()) {
 +    return RespondNow(Error("Node ID not found"));
 +  }
-+  
++
 +  const NodeInfo& node_info = node_it->second;
-+  
++
 +  // Perform click with change detection and retrying
 +  ChangeDetectionResult change_result = Click(web_contents, node_info);
-+  
++
 +  // Convert result to API response
 +  base::Value::Dict response = ChangeDetectionResultToDict(change_result);
-+  
++
 +  return RespondNow(WithArguments(std::move(response)));
 +}
 +
@@ -351,7 +351,7 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
 +  int tab_id = tab_info->tab_id;
 +
@@ -360,22 +360,22 @@ index 0000000000000..31d54b9d0fb58
 +  if (tab_it == GetNodeIdMappings().end()) {
 +    return RespondNow(Error("No snapshot data for this tab"));
 +  }
-+  
++
 +  auto node_it = tab_it->second.find(params->node_id);
 +  if (node_it == tab_it->second.end()) {
 +    return RespondNow(Error("Node ID not found"));
 +  }
-+  
++
 +  const NodeInfo& node_info = node_it->second;
-+  
-+  
++
++
 +  // First, click on the element to focus it
 +  Click(web_contents, node_info);
-+  
-+  
++
++
 +  // Type the text into the focused element
 +  Type(web_contents, params->text);
-+  
++
 +  return RespondNow(NoArguments());
 +}
 +
@@ -394,7 +394,7 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
 +  int tab_id = tab_info->tab_id;
 +
@@ -403,28 +403,28 @@ index 0000000000000..31d54b9d0fb58
 +  if (tab_it == GetNodeIdMappings().end()) {
 +    return RespondNow(Error("No snapshot data for this tab"));
 +  }
-+  
++
 +  auto node_it = tab_it->second.find(params->node_id);
 +  if (node_it == tab_it->second.end()) {
 +    return RespondNow(Error("Node ID not found"));
 +  }
-+  
++
 +  const NodeInfo& node_info = node_it->second;
-+  
++
 +  // First, click on the element to focus it
 +  Click(web_contents, node_info);
-+  
++
 +  // Get render widget host for keyboard events
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh) {
 +    return RespondNow(Error("No render widget host"));
 +  }
-+  
++
 +  // Use JavaScript to clear the field, similar to how Puppeteer does it
 +  rfh->ExecuteJavaScriptForTests(
 +      u"(function() {"
@@ -442,7 +442,7 @@ index 0000000000000..31d54b9d0fb58
 +      u"})();",
 +      base::NullCallback(),
 +      /*honor_js_content_settings=*/false);
-+  
++
 +  return RespondNow(NoArguments());
 +}
 +
@@ -461,27 +461,27 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Get the primary main frame
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  // Build the status object
 +  browser_os::PageLoadStatus status;
-+  
++
 +  // Check if any resources are still loading
 +  status.is_resources_loading = web_contents->IsLoading();
-+  
++
 +  // Check if DOMContentLoaded has fired
 +  status.is_dom_content_loaded = rfh->IsDOMContentLoaded();
-+  
++
 +  // Check if onload has completed (all resources loaded)
 +  status.is_page_complete = rfh->IsDocumentOnLoadCompletedInMainFrame();
-+  
++
 +  return RespondNow(ArgumentList(
 +      browser_os::GetPageLoadStatus::Results::Create(status)));
 +}
@@ -501,31 +501,31 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Get viewport height to scroll by approximately one page
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh) {
 +    return RespondNow(Error("No render widget host"));
 +  }
-+  
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv) {
 +    return RespondNow(Error("No render widget host view"));
 +  }
-+  
++
 +  gfx::Rect viewport_bounds = rwhv->GetViewBounds();
 +  int scroll_amount = viewport_bounds.height() * 0.9;  // 90% of viewport height
-+  
++
 +  // Perform scroll up (negative delta_y)
 +  Scroll(web_contents, 0, -scroll_amount, true);
-+  
++
 +  return RespondNow(NoArguments());
 +}
 +
@@ -544,31 +544,31 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Get viewport height to scroll by approximately one page
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh) {
 +    return RespondNow(Error("No render widget host"));
 +  }
-+  
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv) {
 +    return RespondNow(Error("No render widget host view"));
 +  }
-+  
++
 +  gfx::Rect viewport_bounds = rwhv->GetViewBounds();
 +  int scroll_amount = viewport_bounds.height() * 0.9;  // 90% of viewport height
-+  
++
 +  // Perform scroll down (positive delta_y)
 +  Scroll(web_contents, 0, scroll_amount, true);
-+  
++
 +  return RespondNow(NoArguments());
 +}
 +
@@ -587,51 +587,51 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
 +  int tab_id = tab_info->tab_id;
-+  
++
 +  // Look up the AX node ID from our nodeId
 +  auto tab_it = GetNodeIdMappings().find(tab_id);
 +  if (tab_it == GetNodeIdMappings().end()) {
 +    return RespondNow(Error("No snapshot data for this tab"));
 +  }
-+  
++
 +  auto node_it = tab_it->second.find(params->node_id);
 +  if (node_it == tab_it->second.end()) {
 +    return RespondNow(Error("Node ID not found"));
 +  }
-+  
++
 +  const NodeInfo& node_info = node_it->second;
-+  
++
 +  // Get viewport bounds to check if node is already in view
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh) {
 +    return RespondNow(Error("No render widget host"));
 +  }
-+  
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv) {
 +    return RespondNow(Error("No render widget host view"));
 +  }
-+  
++
 +  gfx::Rect viewport_bounds = rwhv->GetViewBounds();
-+  
++
 +  // Check if the node is already visible in the viewport
 +  // We consider it visible if any part of it is within the viewport
 +  bool is_in_view = false;
-+  if (node_info.bounds.y() < viewport_bounds.height() && 
++  if (node_info.bounds.y() < viewport_bounds.height() &&
 +      node_info.bounds.bottom() > 0 &&
 +      node_info.bounds.x() < viewport_bounds.width() &&
 +      node_info.bounds.right() > 0) {
 +    is_in_view = true;
 +  }
-+  
++
 +  if (!is_in_view) {
 +    // Use accessibility action to scroll
 +    if (rfh) {
@@ -641,11 +641,11 @@ index 0000000000000..31d54b9d0fb58
 +      action_data.horizontal_scroll_alignment = ax::mojom::ScrollAlignment::kScrollAlignmentCenter;
 +      action_data.vertical_scroll_alignment = ax::mojom::ScrollAlignment::kScrollAlignmentCenter;
 +      action_data.scroll_behavior = ax::mojom::ScrollBehavior::kScrollIfVisible;
-+      
++
 +      rfh->AccessibilityPerformAction(action_data);
 +    }
 +  }
-+  
++
 +  return RespondNow(ArgumentList(
 +      browser_os::ScrollToNode::Results::Create(!is_in_view)));
 +}
@@ -665,23 +665,23 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Validate the key - use a simple check instead of std::set to avoid exit-time destructor
 +  const std::string& key = params->key;
 +  bool is_supported = (key == "Enter" || key == "Delete" || key == "Backspace" ||
 +                       key == "Tab" || key == "Escape" || key == "ArrowUp" ||
 +                       key == "ArrowDown" || key == "ArrowLeft" || key == "ArrowRight" ||
 +                       key == "Home" || key == "End" || key == "PageUp" || key == "PageDown");
-+  
++
 +  if (!is_supported) {
 +    return RespondNow(Error("Unsupported key: " + params->key));
 +  }
-+  
++
 +  // Send the key
 +  KeyPress(web_contents, params->key);
-+  
++
 +  return RespondNow(NoArguments());
 +}
 +
@@ -700,53 +700,53 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Get the render widget host view
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh) {
 +    return RespondNow(Error("No render frame"));
 +  }
-+  
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh) {
 +    return RespondNow(Error("No render widget host"));
 +  }
-+  
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv) {
 +    return RespondNow(Error("No render widget host view"));
 +  }
-+  
++
 +  // Get the view bounds to determine the size
 +  gfx::Rect view_bounds = rwhv->GetViewBounds();
-+  
++
 +  // Create a reasonable thumbnail size (e.g., 256x256 or proportional)
 +  const int kMaxThumbnailSize = 1024; // 512;//256;
 +  gfx::Size thumbnail_size = view_bounds.size();
-+  
++
 +  // Scale down proportionally
-+  if (thumbnail_size.width() > kMaxThumbnailSize || 
++  if (thumbnail_size.width() > kMaxThumbnailSize ||
 +      thumbnail_size.height() > kMaxThumbnailSize) {
 +    float scale = std::min(
 +        static_cast<float>(kMaxThumbnailSize) / thumbnail_size.width(),
 +        static_cast<float>(kMaxThumbnailSize) / thumbnail_size.height());
 +    thumbnail_size = gfx::ScaleToFlooredSize(thumbnail_size, scale);
 +  }
-+  
++
 +  // For macOS, we need to use a different approach since GrabWindowSnapshot
 +  // expects a window, not a view. Let's use CopyFromSurface instead.
-+  content::RenderWidgetHostImpl* rwhi = 
++  content::RenderWidgetHostImpl* rwhi =
 +      static_cast<content::RenderWidgetHostImpl*>(rwh);
-+  
++
 +  // Request a copy of the surface
 +  rwhi->GetView()->CopyFromSurface(
 +      gfx::Rect(),  // Empty rect means copy entire surface
 +      thumbnail_size,
 +      base::BindOnce(&BrowserOSCaptureScreenshotFunction::OnScreenshotCaptured,
 +                     this));
-+  
++
 +  return RespondLater();
 +}
 +
@@ -756,19 +756,19 @@ index 0000000000000..31d54b9d0fb58
 +    Respond(Error("Failed to capture screenshot"));
 +    return;
 +  }
-+  
++
 +  // Convert bitmap to PNG
 +  auto png_data = gfx::PNGCodec::EncodeBGRASkBitmap(bitmap, false);
 +  if (!png_data.has_value()) {
 +    Respond(Error("Failed to encode screenshot"));
 +    return;
 +  }
-+  
++
 +  // Convert to base64 data URL
 +  std::string base64_data = base::Base64Encode(png_data.value());
-+  
++
 +  std::string data_url = "data:image/png;base64," + base64_data;
-+  
++
 +  Respond(ArgumentList(
 +      browser_os::CaptureScreenshot::Results::Create(data_url)));
 +}
@@ -777,7 +777,7 @@ index 0000000000000..31d54b9d0fb58
 +ExtensionFunction::ResponseAction BrowserOSGetSnapshotFunction::Run() {
 +  auto params = browser_os::GetSnapshot::Params::Create(args());
 +  EXTENSION_FUNCTION_VALIDATE(params);
-+  
++
 +  // Get the target tab
 +  std::string error_message;
 +  auto tab_info = GetTabFromOptionalId(params->tab_id, browser_context(),
@@ -786,9 +786,9 @@ index 0000000000000..31d54b9d0fb58
 +  if (!tab_info) {
 +    return RespondNow(Error(error_message));
 +  }
-+  
++
 +  content::WebContents* web_contents = tab_info->web_contents;
-+  
++
 +  // Request accessibility tree snapshot
 +  web_contents->RequestAXTreeSnapshot(
 +      base::BindOnce(&BrowserOSGetSnapshotFunction::OnAccessibilityTreeReceived,
@@ -797,7 +797,7 @@ index 0000000000000..31d54b9d0fb58
 +      /* max_nodes= */ 0,  // No limit
 +      /* timeout= */ base::TimeDelta(),
 +      content::WebContents::AXTreeSnapshotPolicy::kAll);
-+  
++
 +  return RespondLater();
 +}
 +
@@ -806,14 +806,14 @@ index 0000000000000..31d54b9d0fb58
 +  if (!has_callback()) {
 +    return;
 +  }
-+  
++
 +  // Get parameters again
 +  auto params = browser_os::GetSnapshot::Params::Create(args());
 +  if (!params) {
 +    Respond(Error("Invalid parameters"));
 +    return;
 +  }
-+  
++
 +  // Get tab info again for viewport size
 +  std::string error_message;
 +  auto tab_info = GetTabFromOptionalId(params->tab_id, browser_context(),
@@ -823,7 +823,7 @@ index 0000000000000..31d54b9d0fb58
 +    Respond(Error(error_message));
 +    return;
 +  }
-+  
++
 +  // Get viewport size
 +  gfx::Size viewport_size;
 +  content::WebContents* web_contents = tab_info->web_contents;
@@ -831,18 +831,18 @@ index 0000000000000..31d54b9d0fb58
 +  if (rwhv) {
 +    viewport_size = rwhv->GetVisibleViewportSize();
 +  }
-+  
++
 +  // Extract options
 +  browser_os::SnapshotContext context = browser_os::SnapshotContext::kVisible;
 +  std::vector<browser_os::SectionType> include_sections;
-+  
++
 +  if (params->options) {
 +    context = params->options->context;
 +    if (params->options->include_sections.has_value()) {
 +      include_sections = params->options->include_sections.value();
 +    }
 +  }
-+  
++
 +  // Process the accessibility tree
 +  ContentProcessor::ProcessAccessibilityTree(
 +      tree_update,
@@ -858,7 +858,7 @@ index 0000000000000..31d54b9d0fb58
 +  if (!has_callback()) {
 +    return;
 +  }
-+  
++
 +  Respond(ArgumentList(
 +      browser_os::GetSnapshot::Results::Create(result.snapshot)));
 +}
@@ -932,13 +932,13 @@ index 0000000000000..6090d2fbeb6a4
 + private:
 +  void OnAccessibilityTreeReceived(ui::AXTreeUpdate& tree_update);
 +  void OnSnapshotProcessed(SnapshotProcessingResult result);
-+  
++
 +  // Counter for snapshot IDs
 +  static uint32_t next_snapshot_id_;
-+  
++
 +  // Tab ID for storing mappings
 +  int tab_id_ = -1;
-+  
++
 +  // Viewport size for checking visibility
 +  gfx::Size viewport_size_;
 +};
@@ -984,7 +984,7 @@ index 0000000000000..6090d2fbeb6a4
 +
 +class BrowserOSGetPageLoadStatusFunction : public ExtensionFunction {
 + public:
-+  DECLARE_EXTENSION_FUNCTION("browserOS.getPageLoadStatus", 
++  DECLARE_EXTENSION_FUNCTION("browserOS.getPageLoadStatus",
 +                             BROWSER_OS_GETPAGELOADSTATUS)
 +
 +  BrowserOSGetPageLoadStatusFunction() = default;
@@ -1059,7 +1059,7 @@ index 0000000000000..6090d2fbeb6a4
 +
 +  // ExtensionFunction:
 +  ResponseAction Run() override;
-+  
++
 + private:
 +  void OnScreenshotCaptured(const SkBitmap& bitmap);
 +};
@@ -1126,16 +1126,16 @@ index 0000000000000..2e2c9a875dd09
 +namespace api {
 +
 +// Helper to create and dispatch mouse events for clicking
-+void PointClick(content::WebContents* web_contents, 
++void PointClick(content::WebContents* web_contents,
 +                  const gfx::PointF& point) {
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh)
 +    return;
-+    
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh)
 +    return;
-+    
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv)
 +    return;
@@ -1143,7 +1143,7 @@ index 0000000000000..2e2c9a875dd09
 +  // Get viewport bounds for screen position calculation
 +  gfx::Rect viewport_bounds = rwhv->GetViewBounds();
 +  gfx::PointF viewport_origin(viewport_bounds.x(), viewport_bounds.y());
-+  
++
 +  // The coordinates are already in widget space (CSS pixels)
 +  gfx::PointF widget_point = point;
 +
@@ -1153,11 +1153,11 @@ index 0000000000000..2e2c9a875dd09
 +  mouse_down.button = blink::WebPointerProperties::Button::kLeft;
 +  mouse_down.click_count = 1;
 +  mouse_down.SetPositionInWidget(widget_point.x(), widget_point.y());
-+  mouse_down.SetPositionInScreen(widget_point.x() + viewport_origin.x(), 
++  mouse_down.SetPositionInScreen(widget_point.x() + viewport_origin.x(),
 +                                widget_point.y() + viewport_origin.y());
 +  mouse_down.SetTimeStamp(ui::EventTimeForNow());
 +  mouse_down.SetModifiers(blink::WebInputEvent::kLeftButtonDown);
-+  
++
 +  // Create mouse up event
 +  blink::WebMouseEvent mouse_up;
 +  mouse_up.SetType(blink::WebInputEvent::Type::kMouseUp);
@@ -1167,7 +1167,7 @@ index 0000000000000..2e2c9a875dd09
 +  mouse_up.SetPositionInScreen(widget_point.x() + viewport_origin.x(),
 +                              widget_point.y() + viewport_origin.y());
 +  mouse_up.SetTimeStamp(ui::EventTimeForNow());
-+  
++
 +  // Send the events
 +  rwh->ForwardMouseEvent(mouse_down);
 +  rwh->ForwardMouseEvent(mouse_up);
@@ -1179,25 +1179,25 @@ index 0000000000000..2e2c9a875dd09
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh)
 +    return;
-+    
++
 +  // Build the JavaScript to find and click the element
 +  std::u16string js_code = u"(function() {";
-+  
++
 +  // Try to find element by ID first
 +  auto id_it = node_info.attributes.find("id");
 +  if (id_it != node_info.attributes.end() && !id_it->second.empty()) {
-+    js_code += u"  var element = document.getElementById('" + 
++    js_code += u"  var element = document.getElementById('" +
 +               base::UTF8ToUTF16(id_it->second) + u"');";
 +    js_code += u"  if (element) {";
 +    js_code += u"    element.click();";
 +    js_code += u"    return 'clicked by id';";
 +    js_code += u"  }";
 +  }
-+  
++
 +  // Try to find by class and tag combination
 +  auto class_it = node_info.attributes.find("class");
 +  auto tag_it = node_info.attributes.find("html-tag");
-+  
++
 +  if (class_it != node_info.attributes.end() && !class_it->second.empty() &&
 +      tag_it != node_info.attributes.end() && !tag_it->second.empty()) {
 +    // Split class names and create selector
@@ -1208,28 +1208,28 @@ index 0000000000000..2e2c9a875dd09
 +        class_selector[i] = '.';
 +      }
 +    }
-+    
-+    js_code += u"  var elements = document.querySelectorAll('" + 
++
++    js_code += u"  var elements = document.querySelectorAll('" +
 +               base::UTF8ToUTF16(tag_it->second + class_selector) + u"');";
 +    js_code += u"  if (elements.length > 0) {";
 +    js_code += u"    elements[0].click();";
 +    js_code += u"    return 'clicked by class and tag';";
 +    js_code += u"  }";
 +  }
-+  
++
 +  // Fallback: try just by tag name if available
 +  if (tag_it != node_info.attributes.end() && !tag_it->second.empty()) {
-+    js_code += u"  var elements = document.getElementsByTagName('" + 
++    js_code += u"  var elements = document.getElementsByTagName('" +
 +               base::UTF8ToUTF16(tag_it->second) + u"');";
 +    js_code += u"  if (elements.length > 0) {";
 +    js_code += u"    elements[0].click();";
 +    js_code += u"    return 'clicked by tag';";
 +    js_code += u"  }";
 +  }
-+  
++
 +  js_code += u"  return 'no element found';";
 +  js_code += u"})();";
-+  
++
 +  // Execute the JavaScript
 +  rfh->ExecuteJavaScriptForTests(
 +      js_code,
@@ -1245,11 +1245,11 @@ index 0000000000000..2e2c9a875dd09
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh)
 +    return;
-+    
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh)
 +    return;
-+    
++
 +  content::RenderWidgetHostView* rwhv = rwh->GetView();
 +  if (!rwhv)
 +    return;
@@ -1258,7 +1258,7 @@ index 0000000000000..2e2c9a875dd09
 +  gfx::Rect viewport_bounds = rwhv->GetViewBounds();
 +  gfx::PointF center_point(viewport_bounds.width() / 2.0f,
 +                          viewport_bounds.height() / 2.0f);
-+  
++
 +  // Create mouse wheel event
 +  blink::WebMouseWheelEvent wheel_event;
 +  wheel_event.SetType(blink::WebInputEvent::Type::kMouseWheel);
@@ -1266,18 +1266,18 @@ index 0000000000000..2e2c9a875dd09
 +  wheel_event.SetPositionInScreen(center_point.x() + viewport_bounds.x(),
 +                                 center_point.y() + viewport_bounds.y());
 +  wheel_event.SetTimeStamp(ui::EventTimeForNow());
-+  
++
 +  // Set the scroll deltas
 +  wheel_event.delta_x = delta_x;
 +  wheel_event.delta_y = delta_y;
-+  
++
 +  // Set wheel tick values (120 = one notch)
 +  wheel_event.wheel_ticks_x = delta_x / 120.0f;
 +  wheel_event.wheel_ticks_y = delta_y / 120.0f;
-+  
++
 +  // Phase information for smooth scrolling
 +  wheel_event.phase = blink::WebMouseWheelEvent::kPhaseBegan;
-+  
++
 +  // Precise scrolling for touchpad, non-precise for mouse wheel
 +  if (precise) {
 +    // For precise scrolling, deltas are in pixels
@@ -1286,10 +1286,10 @@ index 0000000000000..2e2c9a875dd09
 +    // For non-precise scrolling, deltas are in lines
 +    wheel_event.delta_units = ui::ScrollGranularity::kScrollByLine;
 +  }
-+  
++
 +  // Send the wheel event
 +  rwh->ForwardWheelEvent(wheel_event);
-+  
++
 +  // Send phase ended event for smooth scrolling
 +  wheel_event.phase = blink::WebMouseWheelEvent::kPhaseEnded;
 +  wheel_event.delta_x = 0;
@@ -1305,7 +1305,7 @@ index 0000000000000..2e2c9a875dd09
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh)
 +    return;
-+    
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh)
 +    return;
@@ -1314,7 +1314,7 @@ index 0000000000000..2e2c9a875dd09
 +  ui::KeyboardCode windows_key_code;
 +  ui::DomCode dom_code;
 +  ui::DomKey dom_key;
-+  
++
 +  // Use if-else chain to avoid static initialization
 +  if (key == "Enter") {
 +    windows_key_code = ui::VKEY_RETURN;
@@ -1371,21 +1371,21 @@ index 0000000000000..2e2c9a875dd09
 +  } else {
 +    return;  // Unsupported key
 +  }
-+  
++
 +  // Create keyboard event
 +  input::NativeWebKeyboardEvent key_down(
 +      blink::WebInputEvent::Type::kKeyDown,
 +      blink::WebInputEvent::kNoModifiers,
 +      ui::EventTimeForNow());
-+  
++
 +  key_down.windows_key_code = windows_key_code;
 +  key_down.native_key_code = windows_key_code;
 +  key_down.dom_code = static_cast<int>(dom_code);
 +  key_down.dom_key = static_cast<int>(dom_key);
-+  
++
 +  // Send key down
 +  rwh->ForwardKeyboardEvent(key_down);
-+  
++
 +  // For Enter key, also send char event
 +  // This is for `input` elements on web pages expect this to trigger submit
 +  if (key == "Enter") {
@@ -1393,29 +1393,29 @@ index 0000000000000..2e2c9a875dd09
 +        blink::WebInputEvent::Type::kChar,
 +        blink::WebInputEvent::kNoModifiers,
 +        ui::EventTimeForNow());
-+    
++
 +    char_event.windows_key_code = windows_key_code;
 +    char_event.native_key_code = windows_key_code;
 +    char_event.dom_code = static_cast<int>(dom_code);
 +    char_event.dom_key = static_cast<int>(dom_key);
 +    char_event.text[0] = '\r';  // Carriage return character
 +    char_event.unmodified_text[0] = '\r';
-+    
++
 +    rwh->ForwardKeyboardEvent(char_event);
 +  }
-+  
++
 +  // For most keys, also send key up
 +  if (key != "Tab") {  // Tab usually doesn't need key up for focus change
 +    input::NativeWebKeyboardEvent key_up(
 +        blink::WebInputEvent::Type::kKeyUp,
 +        blink::WebInputEvent::kNoModifiers,
 +        ui::EventTimeForNow());
-+    
++
 +    key_up.windows_key_code = windows_key_code;
 +    key_up.native_key_code = windows_key_code;
 +    key_up.dom_code = static_cast<int>(dom_code);
 +    key_up.dom_key = static_cast<int>(dom_key);
-+    
++
 +    rwh->ForwardKeyboardEvent(key_up);
 +  }
 +}
@@ -1426,14 +1426,14 @@ index 0000000000000..2e2c9a875dd09
 +  content::RenderFrameHost* rfh = web_contents->GetPrimaryMainFrame();
 +  if (!rfh)
 +    return;
-+    
++
 +  content::RenderWidgetHost* rwh = rfh->GetRenderWidgetHost();
 +  if (!rwh)
 +    return;
-+  
++
 +  // Convert text to UTF16
 +  std::u16string text16 = base::UTF8ToUTF16(text);
-+  
++
 +  // Add a small delay to ensure the element is focused after click
 +  // Then send the text using ImeCommitText
 +  base::SequencedTaskRunner::GetCurrentDefault()->PostDelayedTask(
@@ -1442,13 +1442,13 @@ index 0000000000000..2e2c9a875dd09
 +          [](content::RenderWidgetHost* rwh, const std::u16string& text) {
 +            if (!rwh)
 +              return;
-+            
-+            content::RenderWidgetHostImpl* rwhi = 
++
++            content::RenderWidgetHostImpl* rwhi =
 +                static_cast<content::RenderWidgetHostImpl*>(rwh);
-+            
++
 +            // Ensure the widget has focus
 +            rwhi->Focus();
-+            
++
 +            // Try multiple approaches to input text
 +            // 1. First try ImeSetComposition to simulate typing
 +            rwhi->ImeSetComposition(text,
@@ -1456,16 +1456,16 @@ index 0000000000000..2e2c9a875dd09
 +                                   gfx::Range::InvalidRange(),
 +                                   text.length(),  // selection_start at end
 +                                   text.length()); // selection_end at end
-+            
++
 +            // 2. Then commit the text
 +            rwhi->ImeCommitText(text,
 +                                std::vector<ui::ImeTextSpan>(),
 +                                gfx::Range::InvalidRange(),
 +                                0);  // relative_cursor_pos = 0 means after the text
-+            
++
 +            // 3. Finish composing to ensure text is committed
 +            rwhi->ImeFinishComposingText(false);
-+            
++
 +          },
 +          rwh, text16),
 +      base::Milliseconds(100));  // Increase delay to 100ms for better focus handling
@@ -1477,26 +1477,26 @@ index 0000000000000..2e2c9a875dd09
 +  // Create change detector and start monitoring
 +  auto change_detector = std::make_unique<BrowserOSChangeDetector>(web_contents);
 +  change_detector->StartMonitoring(node_info.ax_tree_id);
-+  
++
 +  // Perform the click action using coordinate-based click
 +  gfx::PointF click_point(
 +      node_info.bounds.x() + node_info.bounds.width() / 2.0f,
 +      node_info.bounds.y() + node_info.bounds.height() / 2.0f);
 +  PointClick(web_contents, click_point);
-+  
++
 +  // Wait for changes with timeout
-+  ChangeDetectionResult change_result = 
++  ChangeDetectionResult change_result =
 +      change_detector->WaitForChanges(base::Milliseconds(500));
-+  
++
 +  // If no change detected via coordinate click, try HTML click as fallback
 +  if (!change_result.detected) {
 +    VLOG(1) << "No change detected with coordinate click, trying HTML click";
 +    HtmlClick(web_contents, node_info);
-+    
++
 +    // Wait again for changes
 +    change_result = change_detector->WaitForChanges(base::Milliseconds(300));
 +  }
-+  
++
 +  return change_result;
 +}
 +
@@ -1531,7 +1531,7 @@ index 0000000000000..ab8eb164a11c3
 +struct NodeInfo;
 +
 +// Helper to create and dispatch mouse events for clicking
-+void PointClick(content::WebContents* web_contents, 
++void PointClick(content::WebContents* web_contents,
 +                  const gfx::PointF& point);
 +
 +// Helper to perform HTML-based click using JS (uses ID, class, or tag)
@@ -1598,9 +1598,9 @@ index 0000000000000..1b2f83a233844
 +
 +// Global node ID mappings storage
 +// Use NoDestructor to avoid exit-time destructor
-+std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>& 
++std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>&
 +GetNodeIdMappings() {
-+  static base::NoDestructor<std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>> 
++  static base::NoDestructor<std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>>
 +      g_node_id_mappings;
 +  return *g_node_id_mappings;
 +}
@@ -1612,7 +1612,7 @@ index 0000000000000..1b2f83a233844
 +    std::string* error_message) {
 +  content::WebContents* web_contents = nullptr;
 +  int tab_id = -1;
-+  
++
 +  if (tab_id_param) {
 +    // Get specific tab by ID
 +    WindowController* controller = nullptr;
@@ -1653,15 +1653,15 @@ index 0000000000000..1b2f83a233844
 +// Helper to determine if a node is interactive (clickable/typeable/selectable)
 +browser_os::InteractiveNodeType GetInteractiveNodeType(
 +    const ui::AXNodeData& node_data) {
-+  
++
 +  // Skip invisible or ignored nodes early
 +  if (node_data.IsInvisibleOrIgnored()) {
 +    return browser_os::InteractiveNodeType::kOther;
 +  }
 +
 +  // Use built-in IsTextField() and related methods for typeable elements
-+  if (node_data.IsTextField() || 
-+      node_data.IsPasswordField() || 
++  if (node_data.IsTextField() ||
++      node_data.IsPasswordField() ||
 +      node_data.IsAtomicTextField() ||
 +      node_data.IsNonAtomicTextField() ||
 +      node_data.IsSpinnerTextField()) {
@@ -1672,12 +1672,12 @@ index 0000000000000..1b2f83a233844
 +  if (node_data.IsSelectable()) {
 +    return browser_os::InteractiveNodeType::kSelectable;
 +  }
-+  
++
 +  // Use built-in IsClickable() method
 +  if (node_data.IsClickable()) {
 +    return browser_os::InteractiveNodeType::kClickable;
 +  }
-+  
++
 +  // Additional check for combobox and list options which might not be caught by IsSelectable
 +  using Role = ax::mojom::Role;
 +  if (node_data.role == Role::kComboBoxSelect ||
@@ -1691,7 +1691,7 @@ index 0000000000000..1b2f83a233844
 +      node_data.role == Role::kMenuItemRadio) {
 +    return browser_os::InteractiveNodeType::kSelectable;
 +  }
-+  
++
 +  return browser_os::InteractiveNodeType::kOther;
 +}
 +
@@ -1758,13 +1758,13 @@ index 0000000000000..1b2f83a233844
 +  base::Value::Dict response;
 +  response.Set("success", true);
 +  response.Set("changeDetected", result.detected);
-+  
++
 +  if (result.detected) {
 +    // Convert primary change type to string
 +    response.Set("primaryChange", ChangeTypeToString(result.primary_change));
-+    response.Set("timeToChangeMs", 
++    response.Set("timeToChangeMs",
 +                static_cast<int>(result.time_to_change.InMilliseconds()));
-+    
++
 +    // Add all detected changes
 +    base::Value::List all_changes;
 +    for (const auto& change : result.all_changes) {
@@ -1774,7 +1774,7 @@ index 0000000000000..1b2f83a233844
 +      }
 +    }
 +    response.Set("allChanges", std::move(all_changes));
-+    
++
 +    // Add action required hints
 +    if (result.primary_change == ChangeType::kNewTabOpened) {
 +      response.Set("actionRequired", "switch_to_new_tab");
@@ -1782,7 +1782,7 @@ index 0000000000000..1b2f83a233844
 +      response.Set("actionRequired", "interact_with_popup");
 +    }
 +  }
-+  
++
 +  return response;
 +}
 +
@@ -1829,8 +1829,8 @@ index 0000000000000..403633772e2fe
 +struct TabInfo {
 +  raw_ptr<content::WebContents> web_contents;
 +  int tab_id;
-+  
-+  TabInfo(content::WebContents* wc, int id) 
++
++  TabInfo(content::WebContents* wc, int id)
 +      : web_contents(wc), tab_id(id) {}
 +};
 +
@@ -1850,7 +1850,7 @@ index 0000000000000..403633772e2fe
 +};
 +
 +// Global node ID mappings storage
-+std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>& 
++std::unordered_map<int, std::unordered_map<uint32_t, NodeInfo>>&
 +GetNodeIdMappings();
 +
 +// Helper to get WebContents and tab ID from optional tab_id parameter
@@ -1925,7 +1925,7 @@ index 0000000000000..7962fb78b6e48
 +void BrowserOSChangeDetector::StartMonitoring(
 +    const ui::AXTreeID& initial_tree_id) {
 +  DCHECK(!monitoring_active_);
-+  
++
 +  monitoring_active_ = true;
 +  change_detected_ = false;
 +  initial_tree_id_ = initial_tree_id;
@@ -1933,36 +1933,36 @@ index 0000000000000..7962fb78b6e48
 +  detected_changes_.clear();
 +  start_time_ = base::TimeTicks::Now();
 +  time_to_first_change_ = base::TimeDelta();
-+  
-+  VLOG(1) << "Started monitoring for changes, initial tree ID: " 
++
++  VLOG(1) << "Started monitoring for changes, initial tree ID: "
 +          << initial_tree_id.ToString();
 +}
 +
 +ChangeDetectionResult BrowserOSChangeDetector::WaitForChanges(
 +    base::TimeDelta timeout) {
 +  DCHECK(monitoring_active_);
-+  
++
 +  // If changes already detected, return immediately
 +  if (change_detected_) {
 +    return GetResult();
 +  }
-+  
++
 +  // Set up a run loop to wait for changes or timeout
 +  base::RunLoop run_loop(base::RunLoop::Type::kNestableTasksAllowed);
 +  wait_callback_ = run_loop.QuitClosure();
-+  
++
 +  // Start timeout timer
 +  timeout_timer_.Start(FROM_HERE, timeout,
 +                      base::BindOnce(&BrowserOSChangeDetector::OnTimeout,
 +                                    weak_factory_.GetWeakPtr()));
-+  
++
 +  // Wait for changes or timeout
 +  run_loop.Run();
-+  
++
 +  // Clean up
 +  timeout_timer_.Stop();
 +  wait_callback_.Reset();
-+  
++
 +  return GetResult();
 +}
 +
@@ -1972,7 +1972,7 @@ index 0000000000000..7962fb78b6e48
 +  result.all_changes = detected_changes_;
 +  result.new_tree_id = current_tree_id_;
 +  result.time_to_change = time_to_first_change_;
-+  
++
 +  // Determine primary change type
 +  if (!detected_changes_.empty()) {
 +    VLOG(1) << "BrowserOSChangeDetector detected changes: "
@@ -1995,7 +1995,7 @@ index 0000000000000..7962fb78b6e48
 +  else {
 +    LOG(INFO) << "BrowserOSChangeDetector empty detected changes";
 +  }
-+  
++
 +  return result;
 +}
 +
@@ -2004,26 +2004,26 @@ index 0000000000000..7962fb78b6e48
 +  if (!monitoring_active_) {
 +    return;
 +  }
-+  
++
 +  ProcessAccessibilityEvent(details);
 +}
 +
 +void BrowserOSChangeDetector::ProcessAccessibilityEvent(
 +    const ui::AXUpdatesAndEvents& details) {
 +  bool significant_change = false;
-+  
++
 +  // Process each tree update
 +  for (size_t i = 0; i < details.updates.size(); ++i) {
 +    const ui::AXTreeUpdate& update = details.updates[i];
-+    
++
 +    // Check if tree ID changed
 +    if (update.has_tree_data && update.tree_data.tree_id != initial_tree_id_) {
 +      current_tree_id_ = update.tree_data.tree_id;
 +      significant_change = true;
-+      VLOG(1) << "Tree ID changed from " << initial_tree_id_.ToString() 
++      VLOG(1) << "Tree ID changed from " << initial_tree_id_.ToString()
 +              << " to " << current_tree_id_.ToString();
 +    }
-+    
++
 +    // Check for specific event types from the corresponding event
 +    if (i < details.events.size()) {
 +      const ui::AXEvent& event = details.events[i];
@@ -2034,26 +2034,26 @@ index 0000000000000..7962fb78b6e48
 +          detected_changes_.insert(ChangeType::kDomChanged);
 +          significant_change = true;
 +          break;
-+          
++
 +        case ax::mojom::Event::kFocus:
 +        case ax::mojom::Event::kFocusContext:
 +        case ax::mojom::Event::kDocumentSelectionChanged:
 +          detected_changes_.insert(ChangeType::kFocusChanged);
 +          significant_change = true;
 +          break;
-+          
++
 +        case ax::mojom::Event::kExpandedChanged:
 +        case ax::mojom::Event::kRowExpanded:
 +        case ax::mojom::Event::kRowCollapsed:
 +          detected_changes_.insert(ChangeType::kElementExpanded);
 +          significant_change = true;
 +          break;
-+          
++
 +        default:
 +          break;
 +      }
 +    }
-+    
++
 +    // Check for popup/dialog indicators in node data
 +    for (const auto& node : update.nodes) {
 +      if (node.role == ax::mojom::Role::kDialog ||
@@ -2065,7 +2065,7 @@ index 0000000000000..7962fb78b6e48
 +          significant_change = true;
 +        }
 +      }
-+      
++
 +      if (node.role == ax::mojom::Role::kMenu ||
 +          node.role == ax::mojom::Role::kMenuBar ||
 +          node.role == ax::mojom::Role::kMenuListPopup) {
@@ -2076,12 +2076,12 @@ index 0000000000000..7962fb78b6e48
 +      }
 +    }
 +  }
-+  
++
 +  if (significant_change && !change_detected_) {
 +    change_detected_ = true;
 +    time_to_first_change_ = base::TimeTicks::Now() - start_time_;
 +    VLOG(1) << "Change detected after " << time_to_first_change_.InMilliseconds() << " ms";
-+    
++
 +    // If waiting, quit the run loop
 +    if (wait_callback_) {
 +      std::move(wait_callback_).Run();
@@ -2101,21 +2101,21 @@ index 0000000000000..7962fb78b6e48
 +  if (!monitoring_active_) {
 +    return;
 +  }
-+  
++
 +  if (disposition == WindowOpenDisposition::NEW_POPUP ||
 +      disposition == WindowOpenDisposition::NEW_FOREGROUND_TAB ||
 +      disposition == WindowOpenDisposition::NEW_BACKGROUND_TAB ||
 +      disposition == WindowOpenDisposition::NEW_WINDOW) {
 +    detected_changes_.insert(ChangeType::kNewTabOpened);
 +    change_detected_ = true;
-+    
++
 +    if (!time_to_first_change_.is_positive()) {
 +      time_to_first_change_ = base::TimeTicks::Now() - start_time_;
 +    }
-+    
-+    VLOG(1) << "New tab/window detected with disposition: " 
++
++    VLOG(1) << "New tab/window detected with disposition: "
 +            << static_cast<int>(disposition);
-+    
++
 +    if (wait_callback_) {
 +      std::move(wait_callback_).Run();
 +    }
@@ -2127,13 +2127,13 @@ index 0000000000000..7962fb78b6e48
 +  if (!monitoring_active_ || !details) {
 +    return;
 +  }
-+  
++
 +  detected_changes_.insert(ChangeType::kFocusChanged);
-+  
++
 +  if (!change_detected_) {
 +    change_detected_ = true;
 +    time_to_first_change_ = base::TimeTicks::Now() - start_time_;
-+    
++
 +    if (wait_callback_) {
 +      std::move(wait_callback_).Run();
 +    }
@@ -2142,7 +2142,7 @@ index 0000000000000..7962fb78b6e48
 +
 +void BrowserOSChangeDetector::OnTimeout() {
 +  VLOG(1) << "Change detection timeout reached";
-+  
++
 +  if (wait_callback_) {
 +    std::move(wait_callback_).Run();
 +  }
@@ -2269,7 +2269,7 @@ index 0000000000000..f4a902e1b4970
 +  std::set<ChangeType> detected_changes_;
 +  base::TimeTicks start_time_;
 +  base::TimeDelta time_to_first_change_;
-+  
++
 +  // Timer for timeout handling
 +  base::OneShotTimer timeout_timer_;
 +  base::OnceClosure wait_callback_;
@@ -2322,7 +2322,7 @@ index 0000000000000..7a35c0fea9de8
 +// Helper to clean text for output
 +std::string CleanTextForOutput(const std::string& text) {
 +  std::string cleaned = std::string(base::TrimWhitespaceASCII(text, base::TRIM_ALL));
-+  
++
 +  // Replace multiple spaces with single space
 +  std::string result;
 +  bool prev_space = false;
@@ -2337,16 +2337,16 @@ index 0000000000000..7a35c0fea9de8
 +      prev_space = false;
 +    }
 +  }
-+  
++
 +  return result;
 +}
 +
 +// Helper to determine if URL is external
 +bool IsExternalUrl(const std::string& url) {
 +  if (url.empty()) return false;
-+  
++
 +  // Check for common external URL patterns
-+  return url.find("http://") == 0 || 
++  return url.find("http://") == 0 ||
 +         url.find("https://") == 0 ||
 +         url.find("//") == 0;
 +}
@@ -2430,7 +2430,7 @@ index 0000000000000..7a35c0fea9de8
 +  } else if (role == "region") {
 +    return browser_os::SectionType::kRegion;
 +  }
-+  
++
 +  // Check HTML tags
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kHtmlTag)) {
 +    const std::string& tag = node.GetStringAttribute(ax::mojom::StringAttribute::kHtmlTag);
@@ -2450,7 +2450,7 @@ index 0000000000000..7a35c0fea9de8
 +      return browser_os::SectionType::kForm;
 +    }
 +  }
-+  
++
 +  return browser_os::SectionType::kNone;  // Not a section root
 +}
 +
@@ -2468,7 +2468,7 @@ index 0000000000000..7a35c0fea9de8
 +    int32_t node_id,
 +    const std::unordered_map<int32_t, ui::AXNodeData>& node_map,
 +    scoped_refptr<ProcessingContext> context) {
-+  
++
 +  // Fast path: check cache first
 +  {
 +    base::AutoLock lock(context->section_cache_lock);
@@ -2477,13 +2477,13 @@ index 0000000000000..7a35c0fea9de8
 +      return cached_it->second;
 +    }
 +  }
-+  
++
 +  // Find the node
 +  auto node_it = node_map.find(node_id);
 +  if (node_it == node_map.end()) {
 +    return browser_os::SectionType::kOther;
 +  }
-+  
++
 +  // Check if this node itself defines a section
 +  browser_os::SectionType node_section = GetSectionTypeFromNode(node_it->second);
 +  if (node_section != browser_os::SectionType::kNone) {
@@ -2495,18 +2495,18 @@ index 0000000000000..7a35c0fea9de8
 +    }
 +    return node_section;
 +  }
-+  
++
 +  // Walk up the tree to find section
 +  std::vector<int32_t> path;
 +  path.reserve(20);  // Pre-allocate for typical depth
-+  
++
 +  int32_t current_id = node_id;
 +  const int kMaxDepth = 100;
 +  int depth = 0;
-+  
++
 +  while (current_id >= 0 && depth < kMaxDepth) {
 +    path.push_back(current_id);
-+    
++
 +    // Check cache during walk
 +    {
 +      base::AutoLock lock(context->section_cache_lock);
@@ -2519,7 +2519,7 @@ index 0000000000000..7a35c0fea9de8
 +        }
 +        return section;
 +      }
-+      
++
 +      // Check if this is a known section root
 +      auto root_it = context->section_root_nodes.find(current_id);
 +      if (root_it != context->section_root_nodes.end()) {
@@ -2531,17 +2531,17 @@ index 0000000000000..7a35c0fea9de8
 +        return section;
 +      }
 +    }
-+    
++
 +    // Move to parent
 +    auto current_it = node_map.find(current_id);
 +    if (current_it == node_map.end()) {
 +      break;
 +    }
-+    
++
 +    current_id = current_it->second.relative_bounds.offset_container_id;
 +    depth++;
 +  }
-+  
++
 +  // Default to "other" section and cache the path
 +  browser_os::SectionType default_section = browser_os::SectionType::kOther;
 +  {
@@ -2550,7 +2550,7 @@ index 0000000000000..7a35c0fea9de8
 +      context->node_to_section_cache[path_node_id] = default_section;
 +    }
 +  }
-+  
++
 +  return default_section;
 +}
 +
@@ -2576,7 +2576,7 @@ index 0000000000000..7a35c0fea9de8
 +  } else if (node.role == "region") {
 +    return browser_os::SectionType::kRegion;
 +  }
-+  
++
 +  // Check HTML tags from attributes
 +  auto tag_it = node.attributes.find("html-tag");
 +  if (tag_it != node.attributes.end()) {
@@ -2597,7 +2597,7 @@ index 0000000000000..7a35c0fea9de8
 +      return browser_os::SectionType::kForm;
 +    }
 +  }
-+  
++
 +  return browser_os::SectionType::kOther;
 +}
 +
@@ -2610,26 +2610,26 @@ index 0000000000000..7a35c0fea9de8
 +    browser_os::SectionType section_type,
 +    const std::string& text,
 +    scoped_refptr<ProcessingContext> context) {
-+  
++
 +  if (text.empty()) {
 +    return;
 +  }
-+  
++
 +  base::AutoLock lock(context->sections_lock);
-+  
++
 +  // Get or create section
 +  auto& section_ptr = context->sections[section_type];
 +  if (!section_ptr) {
 +    section_ptr = std::make_unique<SectionInfo>();
 +    section_ptr->type = section_type;
 +  }
-+  
++
 +  // Add text with newline separator if needed
 +  if (!section_ptr->text_content.empty()) {
 +    section_ptr->text_content += "\n";
 +  }
 +  section_ptr->text_content += text;
-+  
++
 +  // Enforce size limit
 +  if (section_ptr->text_content.length() > kMaxTextLength) {
 +    section_ptr->text_content.resize(kMaxTextLength);
@@ -2641,16 +2641,16 @@ index 0000000000000..7a35c0fea9de8
 +    browser_os::SectionType section_type,
 +    browser_os::LinkInfo link,
 +    scoped_refptr<ProcessingContext> context) {
-+  
++
 +  base::AutoLock lock(context->sections_lock);
-+  
++
 +  // Get or create section
 +  auto& section_ptr = context->sections[section_type];
 +  if (!section_ptr) {
 +    section_ptr = std::make_unique<SectionInfo>();
 +    section_ptr->type = section_type;
 +  }
-+  
++
 +  // Add link with limit check
 +  if (section_ptr->links.size() < kMaxLinksPerSection) {
 +    section_ptr->links.push_back(std::move(link));
@@ -2662,7 +2662,7 @@ index 0000000000000..7a35c0fea9de8
 +  if (viewport_bounds.IsEmpty()) {
 +    return true;  // No viewport restriction
 +  }
-+  
++
 +  // Check if node bounds intersect with viewport
 +  return viewport_bounds.Intersects(node.bounds);
 +}
@@ -2670,23 +2670,23 @@ index 0000000000000..7a35c0fea9de8
 +// Helper to extract text from node
 +std::string ContentProcessor::ExtractNodeText(const NodeInfo& node) {
 +  std::vector<std::string> text_parts;
-+  
++
 +  // Get name
 +  if (!node.name.empty()) {
 +    text_parts.push_back(node.name);
 +  }
-+  
++
 +  // Get value for input elements
 +  if (!node.value.empty()) {
 +    text_parts.push_back(node.value);
 +  }
-+  
++
 +  // Get placeholder
 +  auto placeholder_it = node.attributes.find("placeholder");
 +  if (placeholder_it != node.attributes.end() && !placeholder_it->second.empty()) {
 +    text_parts.push_back(placeholder_it->second);
 +  }
-+  
++
 +  // Join all text parts
 +  std::string result = base::JoinString(text_parts, " ");
 +  return CleanTextForOutput(result);
@@ -2695,22 +2695,22 @@ index 0000000000000..7a35c0fea9de8
 +// Helper to extract link info
 +browser_os::LinkInfo ContentProcessor::ExtractLinkInfo(const NodeInfo& node) {
 +  browser_os::LinkInfo link;
-+  
++
 +  // Get URL
 +  link.url = node.url;
-+  
++
 +  // Get link text (name or inner text)
 +  link.text = node.name;
-+  
++
 +  // Get title attribute
 +  auto title_it = node.attributes.find("title");
 +  if (title_it != node.attributes.end()) {
 +    link.title = title_it->second;
 +  }
-+  
++
 +  // Determine if external
 +  link.is_external = IsExternalUrl(link.url);
-+  
++
 +  // Add additional attributes
 +  browser_os::LinkInfo::Attributes attrs;
 +  attrs.additional_properties.Set("role", node.role);
@@ -2718,7 +2718,7 @@ index 0000000000000..7a35c0fea9de8
 +    attrs.additional_properties.Set("tag", node.attributes.at("html-tag"));
 +  }
 +  link.attributes = std::move(attrs);
-+  
++
 +  return link;
 +}
 +
@@ -2744,14 +2744,14 @@ index 0000000000000..7a35c0fea9de8
 +void ContentProcessor::ProcessNodeBatchParallel(
 +    const std::vector<ui::AXNodeData>& batch,
 +    scoped_refptr<ProcessingContext> context) {
-+  
++
 +  // Process each node in the batch
 +  for (const auto& ax_node : batch) {
 +    // Skip invisible or ignored nodes
 +    if (ax_node.IsInvisibleOrIgnored()) {
 +      continue;
 +    }
-+    
++
 +    // Skip if visibility filtering is enabled and node is not visible
 +    if (context->snapshot_context == browser_os::SnapshotContext::kVisible) {
 +      gfx::Rect viewport_bounds(context->viewport_size);
@@ -2760,11 +2760,11 @@ index 0000000000000..7a35c0fea9de8
 +        continue;
 +      }
 +    }
-+    
++
 +    // Determine which section this node belongs to
 +    browser_os::SectionType section_type = DetermineNodeSection(
 +        ax_node.id, context->node_map, context);
-+    
++
 +    // Check if we should include this section
 +    if (!context->include_sections.empty()) {
 +      bool should_include = false;
@@ -2778,7 +2778,7 @@ index 0000000000000..7a35c0fea9de8
 +        continue;
 +      }
 +    }
-+    
++
 +    // Process based on snapshot type
 +    if (context->snapshot_type == browser_os::SnapshotType::kText) {
 +      // Extract text content
@@ -2802,22 +2802,22 @@ index 0000000000000..7a35c0fea9de8
 +// Helper to extract text from AXNodeData
 +std::string ContentProcessor::ExtractTextFromAXNode(const ui::AXNodeData& node) {
 +  std::vector<std::string> text_parts;
-+  
++
 +  // Get name
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kName)) {
 +    text_parts.push_back(node.GetStringAttribute(ax::mojom::StringAttribute::kName));
 +  }
-+  
++
 +  // Get value for input elements
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kValue)) {
 +    text_parts.push_back(node.GetStringAttribute(ax::mojom::StringAttribute::kValue));
 +  }
-+  
++
 +  // Get placeholder
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kPlaceholder)) {
 +    text_parts.push_back(node.GetStringAttribute(ax::mojom::StringAttribute::kPlaceholder));
 +  }
-+  
++
 +  // Join all text parts
 +  std::string result = base::JoinString(text_parts, " ");
 +  return CleanTextForOutput(result);
@@ -2829,13 +2829,13 @@ index 0000000000000..7a35c0fea9de8
 +  if (!ui::IsLink(node.role)) {
 +    return false;
 +  }
-+  
++
 +  // Also check for valid URL (skip empty fragment links)
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kUrl)) {
 +    const std::string& url = node.GetStringAttribute(ax::mojom::StringAttribute::kUrl);
 +    return !url.empty() && url != "#";
 +  }
-+  
++
 +  // Link role without URL is still a valid link (might have onclick handler)
 +  return true;
 +}
@@ -2843,34 +2843,34 @@ index 0000000000000..7a35c0fea9de8
 +// Helper to extract link info from AXNodeData
 +browser_os::LinkInfo ContentProcessor::ExtractLinkFromAXNode(const ui::AXNodeData& node) {
 +  browser_os::LinkInfo link;
-+  
++
 +  // Get URL
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kUrl)) {
 +    link.url = node.GetStringAttribute(ax::mojom::StringAttribute::kUrl);
 +  }
-+  
++
 +  // Get link text
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kName)) {
 +    link.text = node.GetStringAttribute(ax::mojom::StringAttribute::kName);
 +  }
-+  
++
 +  // Get title attribute
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kTooltip)) {
 +    link.title = node.GetStringAttribute(ax::mojom::StringAttribute::kTooltip);
 +  }
-+  
++
 +  // Determine if external
 +  link.is_external = IsExternalUrl(link.url);
-+  
++
 +  // Add additional attributes
 +  browser_os::LinkInfo::Attributes attrs;
 +  attrs.additional_properties.Set("role", ui::ToString(node.role));
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kHtmlTag)) {
-+    attrs.additional_properties.Set("tag", 
++    attrs.additional_properties.Set("tag",
 +        node.GetStringAttribute(ax::mojom::StringAttribute::kHtmlTag));
 +  }
 +  link.attributes = std::move(attrs);
-+  
++
 +  return link;
 +}
 +
@@ -2878,10 +2878,10 @@ index 0000000000000..7a35c0fea9de8
 +// Callback when batch is processed
 +void ContentProcessor::OnBatchProcessed(
 +    scoped_refptr<ProcessingContext> context) {
-+  
++
 +  // Decrement pending batches atomically
 +  int remaining = context->pending_batches.fetch_sub(1) - 1;
-+  
++
 +  // Check if all batches are complete
 +  if (remaining == 0) {
 +    OnAllBatchesComplete(context);
@@ -2892,26 +2892,26 @@ index 0000000000000..7a35c0fea9de8
 +void ContentProcessor::OnAllBatchesComplete(scoped_refptr<ProcessingContext> context) {
 +  // All processing is already done in parallel batches!
 +  // Just need to convert sections to API format
-+  
++
 +  // Build result snapshot
 +  browser_os::Snapshot snapshot;
 +  snapshot.type = context->snapshot_type;
 +  snapshot.context = context->snapshot_context;
 +  snapshot.timestamp = base::Time::Now().InMillisecondsFSinceUnixEpoch();
-+  
++
 +  // Convert sections to API format
 +  {
 +    base::AutoLock lock(context->sections_lock);
 +    for (const auto& [section_type, section_ptr] : context->sections) {
 +      if (!section_ptr) continue;
-+      
++
 +      browser_os::SnapshotSection api_section;
 +      api_section.type = SectionTypeToString(section_type);
-+      
++
 +      // Always create both results (one will be empty)
 +      browser_os::TextSnapshotResult text_result;
 +      browser_os::LinksSnapshotResult links_result;
-+      
++
 +      // Populate based on type
 +      if (context->snapshot_type == browser_os::SnapshotType::kText) {
 +        text_result.text = std::move(section_ptr->text_content);
@@ -2919,28 +2919,28 @@ index 0000000000000..7a35c0fea9de8
 +      } else if (context->snapshot_type == browser_os::SnapshotType::kLinks) {
 +        links_result.links = std::move(section_ptr->links);
 +      }
-+      
++
 +      api_section.text_result = std::move(text_result);
 +      api_section.links_result = std::move(links_result);
-+      
++
 +      snapshot.sections.push_back(std::move(api_section));
 +    }
 +  }
-+  
++
 +  // Calculate processing time
 +  base::TimeDelta processing_time = base::Time::Now() - context->start_time;
 +  snapshot.processing_time_ms = processing_time.InMilliseconds();
-+  
-+  LOG(INFO) << "[PERF] Content snapshot processed in " 
++
++  LOG(INFO) << "[PERF] Content snapshot processed in "
 +            << processing_time.InMilliseconds() << " ms"
 +            << " (sections: " << snapshot.sections.size() << ")";
-+  
++
 +  // Create result
 +  ContentProcessingResult result;
 +  result.snapshot = std::move(snapshot);
 +  result.nodes_processed = context->node_map.size();
 +  result.processing_time_ms = processing_time.InMilliseconds();
-+  
++
 +  // Run callback
 +  std::move(context->callback).Run(std::move(result));
 +}
@@ -2953,7 +2953,7 @@ index 0000000000000..7a35c0fea9de8
 +    const std::vector<browser_os::SectionType>& include_sections,
 +    const gfx::Size& viewport_size,
 +    base::OnceCallback<void(ContentProcessingResult)> callback) {
-+  
++
 +  // Create processing context
 +  auto processing_context = base::MakeRefCounted<ProcessingContext>();
 +  processing_context->tree_update = tree_update;
@@ -2963,12 +2963,12 @@ index 0000000000000..7a35c0fea9de8
 +  processing_context->viewport_size = viewport_size;
 +  processing_context->callback = std::move(callback);
 +  processing_context->start_time = base::Time::Now();
-+  
++
 +  // Build node map upfront (read-only after this)
 +  for (const auto& node : tree_update.nodes) {
 +    processing_context->node_map[node.id] = node;
 +  }
-+  
++
 +  // Pre-identify section roots for faster lookup
 +  for (const auto& node : tree_update.nodes) {
 +    browser_os::SectionType section_type = GetSectionTypeFromNode(node);
@@ -2978,7 +2978,7 @@ index 0000000000000..7a35c0fea9de8
 +      processing_context->node_to_section_cache[node.id] = section_type;
 +    }
 +  }
-+  
++
 +  // Handle empty case
 +  if (tree_update.nodes.empty()) {
 +    ContentProcessingResult result;
@@ -2990,18 +2990,18 @@ index 0000000000000..7a35c0fea9de8
 +    std::move(processing_context->callback).Run(std::move(result));
 +    return;
 +  }
-+  
++
 +  // Process nodes in batches
 +  const size_t batch_size = 100;
 +  size_t num_batches = (tree_update.nodes.size() + batch_size - 1) / batch_size;
 +  processing_context->pending_batches = num_batches;
-+  
++
 +  for (size_t i = 0; i < tree_update.nodes.size(); i += batch_size) {
 +    size_t end = std::min(i + batch_size, tree_update.nodes.size());
 +    std::vector<ui::AXNodeData> batch(
 +        tree_update.nodes.begin() + i,
 +        tree_update.nodes.begin() + end);
-+    
++
 +    // Post task to ThreadPool with reply
 +    base::ThreadPool::PostTaskAndReply(
 +        FROM_HERE,
@@ -3126,16 +3126,16 @@ index 0000000000000..e553cd8e5ddb9
 +    // Processing state
 +    std::atomic<int> pending_batches{0};
 +    base::Time start_time;
-+    
++
 +    // Thread-safe section management
 +    mutable base::Lock sections_lock;
 +    std::unordered_map<browser_os::SectionType, std::unique_ptr<SectionInfo>> sections;
-+    
++
 +    // Thread-safe caching for section detection
 +    mutable base::Lock section_cache_lock;
 +    std::unordered_map<int32_t, browser_os::SectionType> node_to_section_cache;
 +    std::unordered_map<int32_t, browser_os::SectionType> section_root_nodes;
-+    
++
 +    // Node map built from tree_update (read-only after construction)
 +    std::unordered_map<int32_t, ui::AXNodeData> node_map;
 +
@@ -3151,7 +3151,7 @@ index 0000000000000..e553cd8e5ddb9
 +  static browser_os::LinkInfo ExtractLinkInfo(const NodeInfo& node);
 +  static bool IsLink(const NodeInfo& node);
 +  static bool IsTextNode(const NodeInfo& node);
-+  
++
 +  // Section detection and caching
 +  static browser_os::SectionType DetermineNodeSection(
 +      int32_t node_id,
@@ -3163,7 +3163,7 @@ index 0000000000000..e553cd8e5ddb9
 +      scoped_refptr<ProcessingContext> context);
 +  static browser_os::SectionType GetSectionTypeFromNode(
 +      const ui::AXNodeData& node);
-+  
++
 +  // Thread-safe section content processing
 +  static void AddTextToSection(
 +      browser_os::SectionType section_type,
@@ -3173,12 +3173,12 @@ index 0000000000000..e553cd8e5ddb9
 +      browser_os::SectionType section_type,
 +      browser_os::LinkInfo link,
 +      scoped_refptr<ProcessingContext> context);
-+  
++
 +  // Batch processing with integrated section detection
 +  static void ProcessNodeBatchParallel(
 +      const std::vector<ui::AXNodeData>& batch,
 +      scoped_refptr<ProcessingContext> context);
-+  
++
 +  // Helper functions for parallel processing
 +  static std::string ExtractTextFromAXNode(const ui::AXNodeData& node);
 +  static bool IsLinkNode(const ui::AXNodeData& node);
@@ -3256,35 +3256,35 @@ index 0000000000000..ee9da99ed9bc7
 +  // Compute absolute bounds by walking up the tree
 +  gfx::RectF absolute_bounds = node_data.relative_bounds.bounds;
 +  gfx::Transform accumulated_transform;
-+  
++
 +  // Apply this node's transform if it has one
 +  if (node_data.relative_bounds.transform) {
 +    accumulated_transform = *node_data.relative_bounds.transform;
 +  }
-+  
++
 +  // Walk up the tree to compute absolute position
 +  int32_t current_container_id = node_data.relative_bounds.offset_container_id;
 +  int walk_depth = 0;
-+  
++
 +  while (current_container_id >= 0 && walk_depth < 100) {  // Prevent infinite loops
 +    auto container_it = node_map.find(current_container_id);
 +    if (container_it == node_map.end()) {
 +      break;
 +    }
-+    
++
 +    const ui::AXNodeData& container = container_it->second;
-+    
++
 +    // Offset by container's position
 +    absolute_bounds.Offset(container.relative_bounds.bounds.x(),
 +                         container.relative_bounds.bounds.y());
-+    
++
 +    // Apply container's transform if any
 +    if (container.relative_bounds.transform) {
 +      gfx::Transform container_transform = *container.relative_bounds.transform;
 +      container_transform.PostConcat(accumulated_transform);
 +      accumulated_transform = container_transform;
 +    }
-+    
++
 +    // Account for scroll offset if container has it
 +    if (container.HasIntAttribute(ax::mojom::IntAttribute::kScrollX) ||
 +        container.HasIntAttribute(ax::mojom::IntAttribute::kScrollY)) {
@@ -3292,22 +3292,22 @@ index 0000000000000..ee9da99ed9bc7
 +      int scroll_y = container.GetIntAttribute(ax::mojom::IntAttribute::kScrollY);
 +      absolute_bounds.Offset(-scroll_x, -scroll_y);
 +    }
-+    
++
 +    // Move to next container
 +    current_container_id = container.relative_bounds.offset_container_id;
 +    walk_depth++;
 +  }
-+  
++
 +  // Apply accumulated transform
 +  if (!accumulated_transform.IsIdentity()) {
 +    absolute_bounds = accumulated_transform.MapRect(absolute_bounds);
 +  }
-+  
++
 +  // Store in cache if provided
 +  if (bounds_cache) {
 +    (*bounds_cache)[node_data.id] = absolute_bounds;
 +  }
-+  
++
 +  return absolute_bounds;
 +}
 +
@@ -3317,9 +3317,9 @@ index 0000000000000..ee9da99ed9bc7
 +
 +SnapshotProcessor::ProcessedNode::ProcessedNode(const ProcessedNode&) = default;
 +SnapshotProcessor::ProcessedNode::ProcessedNode(ProcessedNode&&) = default;
-+SnapshotProcessor::ProcessedNode& 
++SnapshotProcessor::ProcessedNode&
 +SnapshotProcessor::ProcessedNode::operator=(const ProcessedNode&) = default;
-+SnapshotProcessor::ProcessedNode& 
++SnapshotProcessor::ProcessedNode&
 +SnapshotProcessor::ProcessedNode::operator=(ProcessedNode&&) = default;
 +SnapshotProcessor::ProcessedNode::~ProcessedNode() = default;
 +
@@ -3354,7 +3354,7 @@ index 0000000000000..ee9da99ed9bc7
 +  if (node.HasStringAttribute(ax::mojom::StringAttribute::kName)) {
 +    name = node.GetStringAttribute(ax::mojom::StringAttribute::kName);
 +  }
-+  
++
 +  // Add role description
 +  std::string role_desc;
 +  switch (node.role) {
@@ -3385,7 +3385,7 @@ index 0000000000000..ee9da99ed9bc7
 +    default:
 +      role_desc = "section";  // Generic fallback
 +  }
-+  
++
 +  if (!name.empty()) {
 +    return name + " (" + role_desc + ")";
 +  } else {
@@ -3401,7 +3401,7 @@ index 0000000000000..ee9da99ed9bc7
 +std::string SanitizeStringForOutput(const std::string& input) {
 +  std::string output;
 +  output.reserve(input.size());
-+  
++
 +  for (char c : input) {
 +    // Only include printable ASCII and whitespace
 +    if ((c >= 32 && c <= 126) || c == '\t' || c == '\n') {
@@ -3410,7 +3410,7 @@ index 0000000000000..ee9da99ed9bc7
 +      output.push_back(' ');  // Replace non-printable with space
 +    }
 +  }
-+  
++
 +  return output;
 +}
 +
@@ -3420,24 +3420,24 @@ index 0000000000000..ee9da99ed9bc7
 +  if (node_data.IsInvisibleOrIgnored()) {
 +    return true;
 +  }
-+  
++
 +  // Get the interactive type and skip if it's not interactive
 +  browser_os::InteractiveNodeType node_type = GetInteractiveNodeType(node_data);
 +  if (node_type == browser_os::InteractiveNodeType::kOther) {
 +    return true;
 +  }
-+  
++
 +  return false;
 +}
 +
 +}  // namespace
 +
 +// Internal structure for managing async processing
-+struct SnapshotProcessor::ProcessingContext 
++struct SnapshotProcessor::ProcessingContext
 +    : public base::RefCountedThreadSafe<ProcessingContext> {
 +  browser_os::InteractiveSnapshot snapshot;
 +  std::unordered_map<int32_t, ui::AXNodeData> node_map;
-+  std::unordered_map<int32_t, int32_t> parent_map;  // child_id -> parent_id  
++  std::unordered_map<int32_t, int32_t> parent_map;  // child_id -> parent_id
 +  std::unordered_map<int32_t, std::vector<int32_t>> children_map;  // parent_id -> child_ids
 +  int tab_id;
 +  ui::AXTreeID tree_id;  // Tree ID for change detection
@@ -3447,7 +3447,7 @@ index 0000000000000..ee9da99ed9bc7
 +  size_t total_batches;
 +  gfx::Rect viewport_bounds;
 +  base::OnceCallback<void(SnapshotProcessingResult)> callback;
-+  
++
 + private:
 +  friend class base::RefCountedThreadSafe<ProcessingContext>;
 +  ~ProcessingContext() = default;
@@ -3458,28 +3458,28 @@ index 0000000000000..ee9da99ed9bc7
 +    int32_t node_id,
 +    const std::unordered_map<int32_t, ui::AXNodeData>& node_map,
 +    int max_chars = 200) {
-+  
++
 +  auto node_it = node_map.find(node_id);
 +  if (node_it == node_map.end()) {
 +    return "";
 +  }
-+  
++
 +  std::vector<std::string> text_parts;
-+  
++
 +  // BFS to collect text from this node and its children
 +  std::queue<int32_t> queue;
 +  queue.push(node_id);
 +  int chars_collected = 0;
-+  
++
 +  while (!queue.empty() && chars_collected < max_chars) {
 +    int32_t current_id = queue.front();
 +    queue.pop();
-+    
++
 +    auto current_it = node_map.find(current_id);
 +    if (current_it == node_map.end()) continue;
-+    
++
 +    const ui::AXNodeData& current = current_it->second;
-+    
++
 +    // Collect text from this node
 +    if (current.HasStringAttribute(ax::mojom::StringAttribute::kName)) {
 +      std::string text = current.GetStringAttribute(ax::mojom::StringAttribute::kName);
@@ -3492,13 +3492,13 @@ index 0000000000000..ee9da99ed9bc7
 +        }
 +      }
 +    }
-+    
++
 +    // Add children to queue
 +    for (int32_t child_id : current.child_ids) {
 +      queue.push(child_id);
 +    }
 +  }
-+  
++
 +  std::string result = base::JoinString(text_parts, " ");
 +  if (result.length() > static_cast<size_t>(max_chars)) {
 +    result = result.substr(0, max_chars - 3) + "...";
@@ -3510,26 +3510,26 @@ index 0000000000000..ee9da99ed9bc7
 +std::pair<std::string, int> BuildPathAndDepth(
 +    int32_t node_id,
 +    const std::unordered_map<int32_t, ui::AXNodeData>& node_map) {
-+  
++
 +  std::vector<std::string> path_parts;
 +  int32_t current_id = node_id;
 +  int depth = 0;
 +  const int max_depth = 10;
-+  
++
 +  while (current_id >= 0 && depth < max_depth) {
 +    auto node_it = node_map.find(current_id);
 +    if (node_it == node_map.end()) break;
-+    
++
 +    const ui::AXNodeData& node = node_it->second;
-+    
++
 +    // Just append the role
 +    path_parts.push_back(ui::ToString(node.role));
-+    
++
 +    // Move to offset container
 +    current_id = node.relative_bounds.offset_container_id;
 +    depth++;
 +  }
-+  
++
 +  // Reverse to get top-down path
 +  std::reverse(path_parts.begin(), path_parts.end());
 +  return std::make_pair(base::JoinString(path_parts, " > "), depth);
@@ -3539,75 +3539,75 @@ index 0000000000000..ee9da99ed9bc7
 +void PopulateNodeAttributes(
 +    const ui::AXNodeData& node_data,
 +    std::unordered_map<std::string, std::string>& attributes) {
-+  
++
 +  // Add role as string
 +  attributes["role"] = ui::ToString(node_data.role);
-+  
++
 +  // Add value attribute for inputs
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kValue)) {
 +    std::string value = node_data.GetStringAttribute(ax::mojom::StringAttribute::kValue);
 +    attributes["value"] = SanitizeStringForOutput(value);
 +  }
-+  
++
 +  // Add HTML tag if available
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kHtmlTag)) {
 +    attributes["html-tag"] = node_data.GetStringAttribute(ax::mojom::StringAttribute::kHtmlTag);
 +  }
-+  
++
 +  // Add role description
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kRoleDescription)) {
 +    std::string role_desc = node_data.GetStringAttribute(ax::mojom::StringAttribute::kRoleDescription);
 +    attributes["role-description"] = SanitizeStringForOutput(role_desc);
 +  }
-+  
++
 +  // Add input type
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kInputType)) {
 +    std::string input_type = node_data.GetStringAttribute(ax::mojom::StringAttribute::kInputType);
 +    attributes["input-type"] = SanitizeStringForOutput(input_type);
 +  }
-+  
++
 +  // Add tooltip
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kTooltip)) {
 +    std::string tooltip = node_data.GetStringAttribute(ax::mojom::StringAttribute::kTooltip);
 +    attributes["tooltip"] = SanitizeStringForOutput(tooltip);
 +  }
-+  
++
 +  // Add placeholder for input fields
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kPlaceholder)) {
 +    std::string placeholder = node_data.GetStringAttribute(ax::mojom::StringAttribute::kPlaceholder);
 +    attributes["placeholder"] = SanitizeStringForOutput(placeholder);
 +  }
-+  
++
 +  // Add description for more context
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kDescription)) {
 +    std::string description = node_data.GetStringAttribute(ax::mojom::StringAttribute::kDescription);
 +    attributes["description"] = SanitizeStringForOutput(description);
 +  }
-+  
++
 +  // Add URL for links
 +  // if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kUrl)) {
 +  //   std::string url = node_data.GetStringAttribute(ax::mojom::StringAttribute::kUrl);
 +  //   attributes["url"] = SanitizeStringForOutput(url);
 +  // }
-+  
++
 +  // Add checked state description
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kCheckedStateDescription)) {
 +    std::string checked_desc = node_data.GetStringAttribute(ax::mojom::StringAttribute::kCheckedStateDescription);
 +    attributes["checked-state"] = SanitizeStringForOutput(checked_desc);
 +  }
-+  
++
 +  // Add autocomplete hint
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kAutoComplete)) {
 +    std::string autocomplete = node_data.GetStringAttribute(ax::mojom::StringAttribute::kAutoComplete);
 +    attributes["autocomplete"] = SanitizeStringForOutput(autocomplete);
 +  }
-+  
++
 +  // Add HTML ID for form associations
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kHtmlId)) {
 +    std::string html_id = node_data.GetStringAttribute(ax::mojom::StringAttribute::kHtmlId);
 +    attributes["id"] = SanitizeStringForOutput(html_id);
 +  }
-+  
++
 +  // Add HTML class names
 +  if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kClassName)) {
 +    std::string class_name = node_data.GetStringAttribute(ax::mojom::StringAttribute::kClassName);
@@ -3623,32 +3623,32 @@ index 0000000000000..ee9da99ed9bc7
 +    const gfx::Rect& doc_viewport_bounds) {
 +  std::vector<ProcessedNode> results;
 +  results.reserve(nodes_to_process.size());
-+  
++
 +  // Local caches for this batch
 +  std::unordered_map<int32_t, gfx::RectF> bounds_cache;
 +  std::unordered_map<int32_t, uint64_t> path_cache;
-+  
++
 +  uint32_t current_node_id = start_node_id;
-+  
++
 +  for (const auto& node_data : nodes_to_process) {
 +    // Skip invisible, ignored, or non-interactive elements
 +    if (ShouldSkipNode(node_data)) {
 +      continue;
 +    }
-+    
++
 +    // Double-check invisibility (already done in ShouldSkipNode, but being explicit)
 +    if (node_data.IsInvisibleOrIgnored()) {
 +      continue;
 +    }
-+    
++
 +    // Get the interactive node type
 +    browser_os::InteractiveNodeType node_type = GetInteractiveNodeType(node_data);
-+    
++
 +    ProcessedNode data;
 +    data.node_data = &node_data;
 +    data.node_id = current_node_id++;
 +    data.node_type = node_type;
-+    
++
 +    // Get accessible name
 +    if (node_data.HasStringAttribute(ax::mojom::StringAttribute::kName)) {
 +      std::string name = node_data.GetStringAttribute(ax::mojom::StringAttribute::kName);
@@ -3658,10 +3658,10 @@ index 0000000000000..ee9da99ed9bc7
 +    // Compute absolute bounds with caching
 +    data.absolute_bounds = ComputeAbsoluteBoundsFromRelative(
 +        node_data, node_map, &bounds_cache);
-+    
++
 +    // Populate all attributes using helper function
 +    PopulateNodeAttributes(node_data, data.attributes);
-+    
++
 +    // Add context from parent node
 +    int32_t parent_id = node_data.relative_bounds.offset_container_id;
 +    if (parent_id >= 0) {
@@ -3670,14 +3670,14 @@ index 0000000000000..ee9da99ed9bc7
 +        data.attributes["context"] = context;
 +      }
 +    }
-+    
++
 +    // Add path and depth using offset_container_id chain
 +    auto [path, depth] = BuildPathAndDepth(node_data.id, node_map);
 +    if (!path.empty()) {
 +      data.attributes["path"] = path;
 +    }
 +    data.attributes["depth"] = std::to_string(depth);
-+    
++
 +    // Check if node is in viewport
 +    // TODO: Fix this logic. still not accurate in terms of saying if in view port or not
 +    bool in_viewport = false;
@@ -3687,10 +3687,10 @@ index 0000000000000..ee9da99ed9bc7
 +      in_viewport = doc_viewport_bounds.Intersects(node_rect);
 +    }
 +    data.attributes["in_viewport"] = in_viewport ? "true" : "false";
-+    
++
 +    results.push_back(std::move(data));
 +  }
-+  
++
 +  return results;
 +}
 +
@@ -3707,18 +3707,18 @@ index 0000000000000..ee9da99ed9bc7
 +    info.bounds = node_data.absolute_bounds;
 +    info.attributes = node_data.attributes;  // Store all computed attributes
 +    GetNodeIdMappings()[context->tab_id][node_data.node_id] = info;
-+    
++
 +    // Log the mapping for debugging
-+    VLOG(2) << "Node ID Mapping: Interactive nodeId=" << node_data.node_id 
-+            << " -> AX node ID=" << info.ax_node_id 
++    VLOG(2) << "Node ID Mapping: Interactive nodeId=" << node_data.node_id
++            << " -> AX node ID=" << info.ax_node_id
 +            << " (name: " << node_data.name << ")";
-+    
++
 +    // Create interactive node
 +    browser_os::InteractiveNode interactive_node;
 +    interactive_node.node_id = node_data.node_id;
 +    interactive_node.type = node_data.node_type;
 +    interactive_node.name = node_data.name;
-+    
++
 +    // Set the bounding rectangle
 +    browser_os::Rect rect;
 +    rect.x = node_data.absolute_bounds.x();
@@ -3726,30 +3726,30 @@ index 0000000000000..ee9da99ed9bc7
 +    rect.width = node_data.absolute_bounds.width();
 +    rect.height = node_data.absolute_bounds.height();
 +    interactive_node.rect = std::move(rect);
-+    
++
 +    // Create attributes dictionary by iterating over all key-value pairs
 +    if (!node_data.attributes.empty()) {
 +      browser_os::InteractiveNode::Attributes attributes;
-+      
++
 +      // Iterate over all attributes and add them to the dictionary
 +      for (const auto& [key, value] : node_data.attributes) {
 +        attributes.additional_properties.Set(key, value);
 +      }
-+      
++
 +      interactive_node.attributes = std::move(attributes);
 +    }
-+    
++
 +    context->snapshot.elements.push_back(std::move(interactive_node));
 +  }
-+  
++
 +  context->processed_batches++;
-+  
++
 +  // Check if all batches are complete
 +  if (context->processed_batches == context->total_batches) {
 +    // Sort elements by node_id to maintain consistent ordering
-+    std::sort(context->snapshot.elements.begin(), 
++    std::sort(context->snapshot.elements.begin(),
 +              context->snapshot.elements.end(),
-+              [](const browser_os::InteractiveNode& a, 
++              [](const browser_os::InteractiveNode& a,
 +                 const browser_os::InteractiveNode& b) {
 +                return a.node_id < b.node_id;
 +              });
@@ -3758,7 +3758,7 @@ index 0000000000000..ee9da99ed9bc7
 +    context->snapshot.hierarchical_structure = "";
 +
 +    base::TimeDelta processing_time = base::TimeTicks::Now() - context->start_time;
-+    LOG(INFO) << "[PERF] Interactive snapshot processed in " 
++    LOG(INFO) << "[PERF] Interactive snapshot processed in "
 +              << processing_time.InMilliseconds() << " ms"
 +              << " (nodes: " << context->snapshot.elements.size() << ")";
 +
@@ -3769,7 +3769,7 @@ index 0000000000000..ee9da99ed9bc7
 +    result.snapshot = std::move(context->snapshot);
 +    result.nodes_processed = context->total_nodes;
 +    result.processing_time_ms = processing_time.InMilliseconds();
-+    
++
 +    // Run callback (context will be deleted when last ref is released)
 +    std::move(context->callback).Run(std::move(result));
 +  }
@@ -3783,13 +3783,13 @@ index 0000000000000..ee9da99ed9bc7
 +    const gfx::Size& viewport_size,
 +    base::OnceCallback<void(SnapshotProcessingResult)> callback) {
 +  base::TimeTicks start_time = base::TimeTicks::Now();
-+  
-+  
++
++
 +  // Build node ID map, parent map and children map for efficient lookup
 +  std::unordered_map<int32_t, ui::AXNodeData> node_map;
 +  std::unordered_map<int32_t, int32_t> parent_map;
 +  std::unordered_map<int32_t, std::vector<int32_t>> children_map;
-+  
++
 +  for (const auto& node : tree_update.nodes) {
 +    node_map[node.id] = node;
 +    // Build parent and children relationships
@@ -3798,22 +3798,22 @@ index 0000000000000..ee9da99ed9bc7
 +      children_map[node.id].push_back(child_id);
 +    }
 +  }
-+  
++
 +  // Prepare processing context using RefCounted
 +  auto context = base::MakeRefCounted<ProcessingContext>();
 +  context->snapshot.snapshot_id = snapshot_id;
 +  context->snapshot.timestamp = base::Time::Now().InMillisecondsFSinceUnixEpoch();
 +  context->tab_id = tab_id;
 +  context->node_map = std::move(node_map);
-+  context->parent_map = std::move(parent_map); 
++  context->parent_map = std::move(parent_map);
 +  context->children_map = std::move(children_map);
 +  context->start_time = start_time;
-+  
++
 +  // Store the tree ID for change detection
 +  if (tree_update.has_tree_data) {
 +    context->tree_id = tree_update.tree_data.tree_id;
 +  }
-+  
++
 +  // Convert viewport size to document viewport bounds
 +  // Find the root node and get its scroll offset
 +  gfx::Rect doc_viewport_bounds;
@@ -3823,23 +3823,23 @@ index 0000000000000..ee9da99ed9bc7
 +      const ui::AXNodeData& root_node = root_it->second;
 +      int scroll_x = root_node.GetIntAttribute(ax::mojom::IntAttribute::kScrollX);
 +      int scroll_y = root_node.GetIntAttribute(ax::mojom::IntAttribute::kScrollY);
-+      
++
 +      // Create viewport in document coordinates
 +      // Position is based on scroll offset, size is the visible viewport size
-+      doc_viewport_bounds = gfx::Rect(scroll_x, scroll_y, 
-+                                      viewport_size.width(), 
++      doc_viewport_bounds = gfx::Rect(scroll_x, scroll_y,
++                                      viewport_size.width(),
 +                                      viewport_size.height());
-+      
++
 +      LOG(INFO) << "Viewport size: " << viewport_size.ToString();
 +      LOG(INFO) << "Root scroll offset: (" << scroll_x << ", " << scroll_y << ")";
 +      LOG(INFO) << "Document viewport bounds: " << doc_viewport_bounds.ToString();
 +    }
 +  }
-+  
++
 +  context->viewport_bounds = doc_viewport_bounds;
 +  context->callback = std::move(callback);
 +  context->processed_batches = 0;
-+  
++
 +  // Clear previous mappings for this tab
 +  GetNodeIdMappings()[tab_id].clear();
 +
@@ -3852,14 +3852,14 @@ index 0000000000000..ee9da99ed9bc7
 +    }
 +    nodes_to_process.push_back(node);
 +  }
-+  
++
 +  context->total_nodes = nodes_to_process.size();
-+  
++
 +  // Handle empty case
 +  if (nodes_to_process.empty()) {
 +    base::TimeDelta processing_time = base::TimeTicks::Now() - start_time;
 +    context->snapshot.processing_time_ms = processing_time.InMilliseconds();
-+    
++
 +    SnapshotProcessingResult result;
 +    result.snapshot = std::move(context->snapshot);
 +    result.nodes_processed = 0;
@@ -3867,26 +3867,26 @@ index 0000000000000..ee9da99ed9bc7
 +    std::move(context->callback).Run(std::move(result));
 +    return;
 +  }
-+  
++
 +  // Process nodes in batches using ThreadPool
 +  const size_t batch_size = 100;  // Process 100 nodes per batch
 +  size_t num_batches = (nodes_to_process.size() + batch_size - 1) / batch_size;
 +  context->total_batches = num_batches;
-+  
++
 +  for (size_t i = 0; i < nodes_to_process.size(); i += batch_size) {
 +    size_t end = std::min(i + batch_size, nodes_to_process.size());
 +    std::vector<ui::AXNodeData> batch(
 +        std::make_move_iterator(nodes_to_process.begin() + i),
 +        std::make_move_iterator(nodes_to_process.begin() + end));
 +    uint32_t start_node_id = i + 1;  // Node IDs start at 1
-+    
++
 +    // Post task to ThreadPool and handle result on UI thread
 +    base::ThreadPool::PostTaskAndReplyWithResult(
 +        FROM_HERE,
 +        {base::TaskPriority::USER_VISIBLE},
-+        base::BindOnce(&SnapshotProcessor::ProcessNodeBatch, 
-+                       std::move(batch), 
-+                       context->node_map, 
++        base::BindOnce(&SnapshotProcessor::ProcessNodeBatch,
++                       std::move(batch),
++                       context->node_map,
 +                       start_node_id,
 +                       context->viewport_bounds),
 +        base::BindOnce(&SnapshotProcessor::OnBatchProcessed,
@@ -3946,7 +3946,7 @@ index 0000000000000..5e1114c40fe89
 +    ProcessedNode& operator=(const ProcessedNode&);
 +    ProcessedNode& operator=(ProcessedNode&&);
 +    ~ProcessedNode();
-+    
++
 +    raw_ptr<const ui::AXNodeData> node_data;
 +    uint32_t node_id;
 +    browser_os::InteractiveNodeType node_type;
@@ -3979,7 +3979,7 @@ index 0000000000000..5e1114c40fe89
 + private:
 +  // Internal processing context
 +  struct ProcessingContext;
-+  
++
 +  // Batch processing callback
 +  static void OnBatchProcessed(scoped_refptr<ProcessingContext> context,
 +                               std::vector<ProcessedNode> batch_results);
@@ -3998,9 +3998,9 @@ index 9c73fc6067b2f..6b3227c786686 100644
 --- a/chrome/browser/extensions/chrome_extensions_browser_api_provider.cc
 +++ b/chrome/browser/extensions/chrome_extensions_browser_api_provider.cc
 @@ -4,6 +4,7 @@
- 
+
  #include "chrome/browser/extensions/chrome_extensions_browser_api_provider.h"
- 
+
 +#include "chrome/browser/extensions/api/browser_os/browser_os_api.h"
  #include "chrome/browser/extensions/api/generated_api_registration.h"
  #include "extensions/browser/extension_function_registry.h"
@@ -4008,7 +4008,7 @@ index 9c73fc6067b2f..6b3227c786686 100644
 @@ -21,6 +22,13 @@ void ChromeExtensionsBrowserAPIProvider::RegisterExtensionFunctions(
    // Commands
    registry->RegisterFunction<GetAllCommandsFunction>();
- 
+
 +  // Browser OS API
 +  registry->RegisterFunction<api::BrowserOSGetAccessibilityTreeFunction>();
 +  registry->RegisterFunction<api::BrowserOSGetInteractiveSnapshotFunction>();
@@ -4109,7 +4109,7 @@ index 0000000000000..6934ee144987d
 +  dictionary AccessibilityTree {
 +    // The ID of the root node
 +    long rootId;
-+    
++
 +    // Map of node IDs to AccessibilityNode objects
 +    object nodes;
 +  };
@@ -4239,7 +4239,7 @@ index 0000000000000..6934ee144987d
 +    DOMString type;
 +    // Text result - only populated for text snapshots
 +    TextSnapshotResult textResult;
-+    // Links result - only populated for links snapshots  
++    // Links result - only populated for links snapshots
 +    LinksSnapshotResult linksResult;
 +  };
 +
@@ -4359,7 +4359,7 @@ index 0000000000000..6934ee144987d
 +        optional long tabId,
 +        DOMString key,
 +        SendKeysCallback callback);
-+        
++
 +    // Captures a screenshot of the tab as a thumbnail
 +    // |tabId|: The tab to capture. Defaults to active tab.
 +    // |callback|: Called with the screenshot as a data URL.
@@ -4425,7 +4425,7 @@ index 96be0882a86cb..6e99ceae68be8 100644
    kOmniboxDirectInput = 261,
    kExperimentalActor = 262,
 +  kBrowserOS = 263,
- 
+
    // Add new entries at the end of the enum and be sure to update the
    // "ExtensionPermission3" enum in
 diff --git a/tools/metrics/histograms/metadata/extensions/enums.xml b/tools/metrics/histograms/metadata/extensions/enums.xml
@@ -4447,8 +4447,8 @@ index 3eea7f9d144a7..7af6e83dedf57 100644
 +  <int value="1945" label="BROWSER_OS_SCROLLTONODE"/>
 +  <int value="1946" label="BROWSER_OS_SENDKEYS"/>
  </enum>
- 
+
  <!-- LINT.ThenChange(//extensions/browser/extension_function_histogram_value.h:HistogramValue) -->
--- 
+--
 2.49.0
 

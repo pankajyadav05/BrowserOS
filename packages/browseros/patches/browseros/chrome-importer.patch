@@ -62,7 +62,7 @@ index 8d41891d1717b..8064a065bbb54 100644
 +    <message name="IDS_SETTINGS_IMPORT_EXTENSIONS_CHECKBOX" desc="Checkbox for importing extensions">
 +      Extensions
 +    </message>
- 
+
      <message name="IDS_SETTINGS_IMPORT_CHOOSE_FILE" desc="Text for the Choose File on dialog">
        Choose File
 diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chrome/browser/extensions/api/settings_private/prefs_util.cc
@@ -76,7 +76,7 @@ index 97bb4be60af93..c27e0e96e4bce 100644
 +  (*s_allowlist)[::prefs::kImportDialogExtensions] =
 +      settings_api::PrefType::kBoolean;
  #endif  // BUILDFLAG(IS_CHROMEOS)
- 
+
    // Supervised Users.  This setting is queried in our Tast tests (b/241943380).
 diff --git a/chrome/browser/importer/external_process_importer_client.cc b/chrome/browser/importer/external_process_importer_client.cc
 index 73abe33857e1a..f660f3ebaf351 100644
@@ -85,7 +85,7 @@ index 73abe33857e1a..f660f3ebaf351 100644
 @@ -249,6 +249,14 @@ void ExternalProcessImporterClient::OnAutofillFormDataImportGroup(
      bridge_->SetAutofillFormData(autofill_form_data_);
  }
- 
+
 +void ExternalProcessImporterClient::OnExtensionsImportReady(
 +    const std::vector<std::string>& extension_ids) {
 +  if (cancelled_)
@@ -95,7 +95,7 @@ index 73abe33857e1a..f660f3ebaf351 100644
 +}
 +
  ExternalProcessImporterClient::~ExternalProcessImporterClient() = default;
- 
+
  void ExternalProcessImporterClient::Cleanup() {
 diff --git a/chrome/browser/importer/external_process_importer_client.h b/chrome/browser/importer/external_process_importer_client.h
 index 6d38b92400bbf..c6f6cfac5049c 100644
@@ -107,7 +107,7 @@ index 6d38b92400bbf..c6f6cfac5049c 100644
            autofill_form_data_entry_group) override;
 +  void OnExtensionsImportReady(
 +      const std::vector<std::string>& extension_ids) override;
- 
+
   protected:
    ~ExternalProcessImporterClient() override;
 diff --git a/chrome/browser/importer/importer_list.cc b/chrome/browser/importer/importer_list.cc
@@ -119,7 +119,7 @@ index 5898c273ff443..45d0758ef98e9 100644
  #include "chrome/grit/generated_resources.h"
  #include "ui/base/l10n/l10n_util.h"
 +#include "base/logging.h"
- 
+
  #if BUILDFLAG(IS_MAC)
  #include "base/apple/foundation_util.h"
 +#include "base/files/file_util.h"
@@ -128,10 +128,10 @@ index 5898c273ff443..45d0758ef98e9 100644
 +#include "base/values.h"
  #include "chrome/common/importer/safari_importer_utils.h"
  #endif
- 
+
 @@ -68,6 +73,9 @@ void DetectBuiltinWindowsProfiles(
  #endif  // BUILDFLAG(IS_WIN)
- 
+
  #if BUILDFLAG(IS_MAC)
 +// Checks if there are any extensions to import from the Chrome preferences file
 +bool HasExtensionsToImport(const base::FilePath& preferences_path);
@@ -348,7 +348,7 @@ index 5898c273ff443..45d0758ef98e9 100644
 +  }
 +}
  #endif  // BUILDFLAG(IS_MAC)
- 
+
  // |locale|: The application locale used for lookups in Firefox's
 @@ -172,8 +384,10 @@ std::vector<importer::SourceProfile> DetectSourceProfilesWorker(
    if (shell_integration::IsFirefoxDefaultBrowser()) {
@@ -370,7 +370,7 @@ index 8ad0b5eb7ce08..0f62a7bf33194 100644
    IMPORTER_METRICS_EDGE = 7,
  #endif
 +  IMPORTER_METRICS_CHROME = 8,
- 
+
    // Insert new values here. Never remove any existing values, as this enum is
    // used to bucket a UMA histogram, and removing values breaks that.
 @@ -59,6 +60,9 @@ void LogImporterUseToMetrics(const std::string& metric_postfix,
@@ -381,16 +381,16 @@ index 8ad0b5eb7ce08..0f62a7bf33194 100644
 +      metrics_type = IMPORTER_METRICS_CHROME;
 +      break;
    }
- 
+
    // Note: This leaks memory, which is the expected behavior as the factory
 diff --git a/chrome/browser/importer/in_process_importer_bridge.cc b/chrome/browser/importer/in_process_importer_bridge.cc
 index ce876a21da88a..bc687cd5f9f4e 100644
 --- a/chrome/browser/importer/in_process_importer_bridge.cc
 +++ b/chrome/browser/importer/in_process_importer_bridge.cc
 @@ -26,6 +26,10 @@
- 
+
  namespace {
- 
+
 +// Temporary definition, should be added to the history module
 +const history::VisitSource SOURCE_CHROME_IMPORTED =
 +    static_cast<history::VisitSource>(4);
@@ -410,7 +410,7 @@ index ce876a21da88a..bc687cd5f9f4e 100644
 @@ -168,6 +174,16 @@ void InProcessImporterBridge::SetAutofillFormData(
    writer_->AddAutocompleteFormDataEntries(autocomplete_entries);
  }
- 
+
 +void InProcessImporterBridge::SetExtensions(
 +    const std::vector<std::string>& extension_ids) {
 +  LOG(INFO) << "InProcessImporterBridge: Received " << extension_ids.size()
@@ -431,7 +431,7 @@ index 49700b2f8a384..1a04f789e0fcc 100644
 @@ -50,6 +50,8 @@ class InProcessImporterBridge : public ImporterBridge {
    void SetAutofillFormData(
        const std::vector<ImporterAutofillFormDataEntry>& entries) override;
- 
+
 +  void SetExtensions(const std::vector<std::string>& extension_ids) override;
 +
    void NotifyStarted() override;
@@ -457,13 +457,13 @@ index 7bb741920d9af..3e64195089866 100644
 +#include "chrome/browser/ui/browser_finder.h"
 +#include "content/public/browser/web_contents.h"
 +#include "base/memory/raw_ptr.h"
- 
+
  using bookmarks::BookmarkModel;
  using bookmarks::BookmarkNode;
 @@ -74,6 +86,22 @@ void ShowBookmarkBar(Profile* profile) {
    profile->GetPrefs()->SetBoolean(bookmarks::prefs::kShowBookmarkBar, true);
  }
- 
+
 +// Silent installer via webstore without any prompt or bubble.
 +class SilentWebstoreInstaller
 +    : public extensions::WebstoreInstallWithPrompt {
@@ -481,11 +481,11 @@ index 7bb741920d9af..3e64195089866 100644
 +};
 +
  }  // namespace
- 
+
  ProfileWriter::ProfileWriter(Profile* profile) : profile_(profile) {}
 @@ -337,3 +365,119 @@ void ProfileWriter::AddAutocompleteFormDataEntries(
  }
- 
+
  ProfileWriter::~ProfileWriter() = default;
 +
 +void ProfileWriter::AddExtensions(
@@ -610,14 +610,14 @@ index 7bccdf2099ae9..8c2c44972981f 100644
 @@ -88,6 +88,10 @@ class ProfileWriter : public base::RefCountedThreadSafe<ProfileWriter> {
    virtual void AddAutocompleteFormDataEntries(
        const std::vector<autofill::AutocompleteEntry>& autocomplete_entries);
- 
+
 +  // Installs the extensions with the given extension IDs from the Chrome Web Store.
 +  // This is used when importing extensions from another browser profile.
 +  virtual void AddExtensions(const std::vector<std::string>& extension_ids);
 +
   protected:
    friend class base::RefCountedThreadSafe<ProfileWriter>;
- 
+
 diff --git a/chrome/browser/resources/settings/people_page/import_data_browser_proxy.ts b/chrome/browser/resources/settings/people_page/import_data_browser_proxy.ts
 index c4e401c551fc5..c8503a94c0c93 100644
 --- a/chrome/browser/resources/settings/people_page/import_data_browser_proxy.ts
@@ -628,7 +628,7 @@ index c4e401c551fc5..c8503a94c0c93 100644
    autofillFormData: boolean;
 +  extensions: boolean;
  }
- 
+
  /**
 diff --git a/chrome/browser/resources/settings/people_page/import_data_dialog.html b/chrome/browser/resources/settings/people_page/import_data_dialog.html
 index 84b305cb5929d..b0047837c898d 100644
@@ -657,7 +657,7 @@ index cecce41ac08ae..934a8a7f2f7c2 100644
 +  if (*type_dict.FindBool(prefs::kImportDialogExtensions)) {
 +    selected_items |= importer::EXTENSIONS;
 +  }
- 
+
    const importer::SourceProfile& source_profile =
        importer_list_->GetSourceProfileAt(browser_index);
 @@ -223,6 +226,8 @@ void ImportDataHandler::SendBrowserProfileData(const std::string& callback_id) {
@@ -666,7 +666,7 @@ index cecce41ac08ae..934a8a7f2f7c2 100644
                          (browser_services & importer::AUTOFILL_FORM_DATA) != 0);
 +    browser_profile.Set("extensions",
 +                        (browser_services & importer::EXTENSIONS) != 0);
- 
+
      browser_profiles.Append(std::move(browser_profile));
    }
 diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
@@ -691,7 +691,7 @@ index ee6aaefb7fc82..83e3f47da279e 100644
    registry->RegisterBooleanPref(prefs::kImportDialogSearchEngine, true);
 +  registry->RegisterBooleanPref(prefs::kImportDialogExtensions, true);
  }
- 
+
  SettingsUI::SettingsUI(content::WebUI* web_ui)
 diff --git a/chrome/common/importer/importer_bridge.h b/chrome/common/importer/importer_bridge.h
 index 628f47472c62a..a8f33806e314a 100644
@@ -700,12 +700,12 @@ index 628f47472c62a..a8f33806e314a 100644
 @@ -49,6 +49,8 @@ class ImporterBridge : public base::RefCountedThreadSafe<ImporterBridge> {
    virtual void SetAutofillFormData(
        const std::vector<ImporterAutofillFormDataEntry>& entries) = 0;
- 
+
 +  virtual void SetExtensions(const std::vector<std::string>& extension_ids) = 0;
 +
    // Notifies the coordinator that the import operation has begun.
    virtual void NotifyStarted() = 0;
- 
+
 diff --git a/chrome/common/importer/importer_data_types.h b/chrome/common/importer/importer_data_types.h
 index 183af47c26576..d0f67017eb876 100644
 --- a/chrome/common/importer/importer_data_types.h
@@ -718,7 +718,7 @@ index 183af47c26576..d0f67017eb876 100644
 +  EXTENSIONS         = 1 << 7,
 +  ALL                = (1 << 8) - 1  // All the bits should be 1, hence the -1.
  };
- 
+
  // Information about a profile needed by an importer to do import work.
 @@ -109,6 +110,7 @@ enum VisitSource {
    VISIT_SOURCE_FIREFOX_IMPORTED = 1,
@@ -726,7 +726,7 @@ index 183af47c26576..d0f67017eb876 100644
    VISIT_SOURCE_SAFARI_IMPORTED = 3,
 +  VISIT_SOURCE_CHROME_IMPORTED = 4,
  };
- 
+
  }  // namespace importer
 diff --git a/chrome/common/importer/importer_type.h b/chrome/common/importer/importer_type.h
 index 4d14f7ac9f7a2..4fb09d902e0e2 100644
@@ -738,7 +738,7 @@ index 4d14f7ac9f7a2..4fb09d902e0e2 100644
  #endif
 +  TYPE_CHROME = 7,
  };
- 
+
  }  // namespace importer
 diff --git a/chrome/common/importer/profile_import.mojom b/chrome/common/importer/profile_import.mojom
 index b28b7324629ae..7ff6dc29b25c1 100644
@@ -750,7 +750,7 @@ index b28b7324629ae..7ff6dc29b25c1 100644
        array<ImporterAutofillFormDataEntry> autofill_form_data_entry_group);
 +  OnExtensionsImportReady(array<string> extension_ids);
  };
- 
+
  // This interface is used to control the import process.
 diff --git a/chrome/common/importer/profile_import_process_param_traits_macros.h b/chrome/common/importer/profile_import_process_param_traits_macros.h
 index 4c37c6c749616..753fadff0f94a 100644
@@ -768,7 +768,7 @@ index 4c37c6c749616..753fadff0f94a 100644
 -                              importer::TYPE_BOOKMARKS_FILE)
 +                              importer::TYPE_CHROME)
  #endif
- 
+
  IPC_ENUM_TRAITS_MIN_MAX_VALUE(importer::ImportItem,
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
 index 0e898dc745b6e..12f83b0cc1ab5 100644
@@ -780,7 +780,7 @@ index 0e898dc745b6e..12f83b0cc1ab5 100644
      "import_dialog_search_engine";
 +inline constexpr char kImportDialogExtensions[] =
 +    "import_dialog_extensions";
- 
+
  #if BUILDFLAG(IS_CHROMEOS)
  // Boolean controlling whether native client is force allowed by policy.
 diff --git a/chrome/utility/BUILD.gn b/chrome/utility/BUILD.gn
@@ -1486,7 +1486,7 @@ index 0f98b3d1da6e7..9b169aab54fd9 100644
 @@ -135,6 +135,13 @@ void ExternalProcessImporterBridge::SetAutofillFormData(
    DCHECK_EQ(0, autofill_form_data_entries_left);
  }
- 
+
 +void ExternalProcessImporterBridge::SetExtensions(
 +    const std::vector<std::string>& extension_ids) {
 +  // Since extension installations need to be handled by the browser process,
@@ -1504,7 +1504,7 @@ index 57362d09f0d38..9340b44b5ac2e 100644
 @@ -62,6 +62,8 @@ class ExternalProcessImporterBridge : public ImporterBridge {
    void SetAutofillFormData(
        const std::vector<ImporterAutofillFormDataEntry>& entries) override;
- 
+
 +  void SetExtensions(const std::vector<std::string>& extension_ids) override;
 +
    void NotifyStarted() override;
@@ -1519,7 +1519,7 @@ index bca57d332db1f..dc0e8c3f4e756 100644
  #include "chrome/utility/importer/bookmarks_file_importer.h"
  #include "chrome/utility/importer/firefox_importer.h"
 +#include "chrome/utility/importer/chrome_importer.h"
- 
+
  #if BUILDFLAG(IS_WIN)
  #include "chrome/common/importer/edge_importer_utils_win.h"
 @@ -38,6 +39,8 @@ scoped_refptr<Importer> CreateImporterByType(ImporterType type) {
@@ -1543,6 +1543,6 @@ index f6d78f41135ad..0a13eb99f91cf 100644
    <variant name="FirstPartySets" summary="FirstPartySets"/>
    <variant name="FSPContextDatabase" summary="FSPContextDatabase"/>
    <variant name="History" summary="History"/>
--- 
+--
 2.49.0
 

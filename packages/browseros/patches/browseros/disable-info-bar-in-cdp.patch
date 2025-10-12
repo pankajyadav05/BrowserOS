@@ -17,9 +17,9 @@ index 47a12e57ee45e..837bff2a60aae 100644
        suppress_infobar_by_flag ||
 -      Manifest::IsPolicyLocation(extension_->location());
 +      Manifest::IsPolicyLocation(extension_->location()) || true;
- 
+
    if (!suppress_infobar) {
      subscription_ = ExtensionDevToolsInfoBarDelegate::Create(
--- 
+--
 2.49.0
 

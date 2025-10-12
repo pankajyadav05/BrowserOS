@@ -20,7 +20,7 @@ from utils import (
 )
 
 # Switch to new patching system using dev CLI
-NEW_PATCHING = True
+NEW_PATCHING = False
 
 
 def apply_patches_with_dev_cli(

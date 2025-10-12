@@ -2,7 +2,9 @@ browseros/first-run.patch
 browseros/chrome-importer.patch
 browseros/chrome-version-updater.patch
 browseros/browseros-extension-constants.patch
+browseros/browseros-build-gn.patch
 browseros/browseros-ota-updater.patch
+browseros/browseros-external-provider-fix.patch
 browseros/browseros-metrics.patch
 browseros/disable-user-gesture-restriction-on-sidepanel.patch
 browseros/disable-info-bar-in-cdp.patch
@@ -12,6 +14,7 @@ browseros/browseros-api-updates.patch
 browseros/mac-sparkle-updater.patch
 browseros/add-sparkle-info-plist-keys.patch
 browseros/branding-file-updates.patch
+browseros/mitria-branding-assets.patch
 browseros/disable-sidepanel-animation.patch
 browseros/disable-chrome-labs-pinning.patch
 browseros/pin-extensions-toolbar.patch

@@ -2,7 +2,7 @@
 build:
   type: release
   # architecture: arm64  # Default single architecture
-  architectures: [arm64, x64] # List for multi-architecture builds
+  architectures: [arm64] # List for multi-architecture builds
   universal: true # Create universal binary from multiple architectures
 
 gn_flags:
@@ -37,5 +37,5 @@ signing:
 
 # Notification settings
 notifications:
-  slack: true # Enable Slack notifications for release builds
+  slack: false # Enable Slack notifications for release builds
 

@@ -16,7 +16,7 @@ index 298138e77b9f6..d89ef96cc4d86 100644
 --- a/chrome/common/chrome_constants.cc
 +++ b/chrome/common/chrome_constants.cc
 @@ -33,9 +33,9 @@ const char kChromeVersion[] = CHROME_VERSION_STRING;
- 
+
  #if BUILDFLAG(IS_WIN)
  const base::FilePath::CharType kBrowserProcessExecutableName[] =
 -    FPL("chrome.exe");
@@ -37,7 +37,7 @@ index 298138e77b9f6..d89ef96cc4d86 100644
  // /proc/self/exe.  See bug 22703.
  const base::FilePath::CharType kHelperProcessExecutableName[] = FPL("exe");
 @@ -55,9 +55,9 @@ const base::FilePath::CharType kHelperProcessExecutableName[] = FPL("exe");
- 
+
  #if BUILDFLAG(IS_WIN)
  const base::FilePath::CharType kBrowserProcessExecutablePath[] =
 -    FPL("chrome.exe");
@@ -57,11 +57,11 @@ index 298138e77b9f6..d89ef96cc4d86 100644
 +const base::FilePath::CharType kBrowserProcessExecutablePath[] = FPL("mitria");
 +const base::FilePath::CharType kHelperProcessExecutablePath[] = FPL("mitria");
  #endif  // OS_*
- 
+
  #if BUILDFLAG(IS_MAC)
 @@ -89,8 +89,8 @@ const char kMacHelperSuffixAlerts[] = " (Alerts)";
  #endif  // BUILDFLAG(IS_MAC)
- 
+
  #if BUILDFLAG(IS_WIN)
 -const base::FilePath::CharType kBrowserResourcesDll[] = FPL("chrome.dll");
 -const base::FilePath::CharType kElfDll[] = FPL("chrome_elf.dll");
@@ -88,17 +88,17 @@ index f5af44ca1c489..57dc381b0147f 100644
 --- a/chrome/install_static/chromium_install_modes.cc
 +++ b/chrome/install_static/chromium_install_modes.cc
 @@ -12,9 +12,9 @@
- 
+
  namespace install_static {
- 
+
 -const wchar_t kCompanyPathName[] = L"";
 +const wchar_t kCompanyPathName[] = L"Mitria";
 
 -const wchar_t kProductPathName[] = L"Chromium";
 +const wchar_t kProductPathName[] = L"Mitria";
- 
+
  const size_t kProductPathNameLength = _countof(kProductPathName) - 1;
- 
+
 diff --git a/chrome/install_static/chromium_install_modes.h b/chrome/install_static/chromium_install_modes.h
 index 7de32cf745755..4b10fc5900fbb 100644
 --- a/chrome/install_static/chromium_install_modes.h
@@ -142,8 +142,8 @@ index 6b936d228cf71..164325ce05d78 100644
 +const char kDefaultServiceName[] = "BrowserOS Safe Storage";
 +const char kDefaultAccountName[] = "BrowserOS";
  #endif
- 
+
  // Generates a random password and adds it to the Keychain.  The added password
--- 
+--
 2.49.0
 

@@ -41,7 +41,7 @@ index 97f843f8133c4..a8318812dcdc3 100644
 @@ -1218,6 +1219,10 @@ if (is_win) {
        bundle_deps += [ ":preinstalled_apps" ]
      }
- 
+
 +    if (enable_sparkle) {
 +      bundle_deps += [ "//third_party/sparkle:sparkle" ]
 +    }
@@ -64,7 +64,7 @@ index ad39862fdd9a5..8cadfe3c6e7fb 100644
 @@ -119,6 +120,11 @@ buildflag_header("buildflags") {
    }
  }
- 
+
 +buildflag_header("sparkle_buildflags") {
 +  header = "sparkle_buildflags.h"
 +  flags = [ "ENABLE_SPARKLE=$enable_sparkle" ]
@@ -76,7 +76,7 @@ index ad39862fdd9a5..8cadfe3c6e7fb 100644
 @@ -6557,6 +6563,20 @@ static_library("browser") {
      ]
    }
- 
+
 +  if (is_mac && enable_sparkle) {
 +    sources += [
 +      "mac/sparkle_glue.h",
@@ -99,11 +99,11 @@ index 95726e7765367..da1f407aff2b3 100644
 --- a/chrome/browser/mac/chrome_browser_main_extra_parts_mac.h
 +++ b/chrome/browser/mac/chrome_browser_main_extra_parts_mac.h
 @@ -24,6 +24,7 @@ class ChromeBrowserMainExtraPartsMac : public ChromeBrowserMainExtraParts {
- 
+
    // ChromeBrowserMainExtraParts:
    void PreEarlyInitialization() override;
 +  void PreCreateMainMessageLoop() override;
- 
+
   private:
    std::unique_ptr<display::ScopedNativeScreen> screen_;
 diff --git a/chrome/browser/mac/chrome_browser_main_extra_parts_mac.mm b/chrome/browser/mac/chrome_browser_main_extra_parts_mac.mm
@@ -111,21 +111,21 @@ index 6bb5ccb823895..b8bd5a800d62e 100644
 --- a/chrome/browser/mac/chrome_browser_main_extra_parts_mac.mm
 +++ b/chrome/browser/mac/chrome_browser_main_extra_parts_mac.mm
 @@ -4,11 +4,39 @@
- 
+
  #include "chrome/browser/mac/chrome_browser_main_extra_parts_mac.h"
- 
+
 +#include "base/logging.h"
 +#include "base/strings/sys_string_conversions.h"
 +#include "chrome/browser/sparkle_buildflags.h"
  #include "ui/display/screen.h"
- 
+
 +#if BUILDFLAG(ENABLE_SPARKLE)
 +#include "chrome/browser/mac/sparkle_glue.h"
 +#endif
 +
  ChromeBrowserMainExtraPartsMac::ChromeBrowserMainExtraPartsMac() = default;
  ChromeBrowserMainExtraPartsMac::~ChromeBrowserMainExtraPartsMac() = default;
- 
+
  void ChromeBrowserMainExtraPartsMac::PreEarlyInitialization() {
    screen_ = std::make_unique<display::ScopedNativeScreen>();
  }
@@ -143,7 +143,7 @@ index 6bb5ccb823895..b8bd5a800d62e 100644
 +      LOG(WARNING) << "ChromeBrowserMainExtraPartsMac: SparkleGlue instance is nil";
 +    }
 +  } @catch (NSException* exception) {
-+    LOG(ERROR) << "ChromeBrowserMainExtraPartsMac: NSException initializing Sparkle: " 
++    LOG(ERROR) << "ChromeBrowserMainExtraPartsMac: NSException initializing Sparkle: "
 +               << base::SysNSStringToUTF8([exception description]);
 +  } @catch (...) {
 +    LOG(ERROR) << "ChromeBrowserMainExtraPartsMac: C++ exception initializing Sparkle";
@@ -263,7 +263,7 @@ index 0000000000000..cf39a1f49a55a
 +      LOG(INFO) << "SparkleGlue: System architecture: x86_64, using appcast URL: " << url;
 +    } else {
 +      url = "https://cdn.browseros.com/appcast.xml";
-+      LOG(INFO) << "SparkleGlue: System architecture: " << base::SysInfo::OperatingSystemArchitecture() 
++      LOG(INFO) << "SparkleGlue: System architecture: " << base::SysInfo::OperatingSystemArchitecture()
 +                << " (ARM64), using default appcast URL: " << url;
 +    }
 +    return base::SysUTF8ToNSString(url);
@@ -292,7 +292,7 @@ index 0000000000000..cf39a1f49a55a
 +  dispatch_once(&onceToken, ^{
 +    @try {
 +      LOG(INFO) << "SparkleGlue: Creating shared instance";
-+      
++
 +      // Check if updates are disabled via command line
 +      auto* command_line = base::CommandLine::ForCurrentProcess();
 +      if (command_line && command_line->HasSwitch("disable-updates")) {
@@ -303,7 +303,7 @@ index 0000000000000..cf39a1f49a55a
 +      shared = [[SparkleGlue alloc] init];
 +      LOG(INFO) << "SparkleGlue: Shared instance created successfully";
 +    } @catch (NSException* exception) {
-+      LOG(ERROR) << "SparkleGlue: Exception creating shared instance: " 
++      LOG(ERROR) << "SparkleGlue: Exception creating shared instance: "
 +                 << base::SysNSStringToUTF8([exception description]);
 +      shared = nil;
 +    } @catch (...) {
@@ -321,9 +321,9 @@ index 0000000000000..cf39a1f49a55a
 +      _registered = NO;
 +      _initializationAttempted = NO;
 +      _appPath = [base::apple::OuterBundle().bundlePath copy];
-+      
++
 +      LOG(INFO) << "SparkleGlue: Init started, app path: " << base::SysNSStringToUTF8(_appPath);
-+      
++
 +      // Defer framework loading to main queue with delay
 +      // This ensures all Chrome subsystems are initialized
 +      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC),
@@ -331,7 +331,7 @@ index 0000000000000..cf39a1f49a55a
 +        LOG(INFO) << "SparkleGlue: Attempting deferred initialization";
 +        [self attemptSparkleInitialization];
 +      });
-+      
++
 +      return self;
 +    }
 +  } @catch (NSException* exception) {
@@ -348,9 +348,9 @@ index 0000000000000..cf39a1f49a55a
 +      return;
 +    }
 +    _initializationAttempted = YES;
-+    
++
 +    LOG(INFO) << "SparkleGlue: Beginning Sparkle initialization";
-+    
++
 +    if ([self loadSparkleFramework]) {
 +      LOG(INFO) << "SparkleGlue: Framework loaded successfully, registering with Sparkle";
 +      [self registerWithSparkle];
@@ -358,7 +358,7 @@ index 0000000000000..cf39a1f49a55a
 +      LOG(ERROR) << "SparkleGlue: Failed to load Sparkle framework";
 +    }
 +  } @catch (NSException* exception) {
-+    LOG(ERROR) << "SparkleGlue: Exception in attemptSparkleInitialization: " 
++    LOG(ERROR) << "SparkleGlue: Exception in attemptSparkleInitialization: "
 +               << base::SysNSStringToUTF8([exception description]);
 +  } @catch (...) {
 +    LOG(ERROR) << "SparkleGlue: C++ exception in attemptSparkleInitialization";
@@ -370,7 +370,7 @@ index 0000000000000..cf39a1f49a55a
 +    base::apple::ScopedNSAutoreleasePool pool;
 +
 +    LOG(INFO) << "SparkleGlue: Loading Sparkle framework";
-+    
++
 +    // Check if running from read-only filesystem (e.g., DMG)
 +    if ([self isOnReadOnlyFilesystem]) {
 +      LOG(INFO) << "SparkleGlue: Running from read-only filesystem, skipping Sparkle";
@@ -382,19 +382,19 @@ index 0000000000000..cf39a1f49a55a
 +      // Path 1: Inside the Chromium Framework bundle (where it's actually bundled)
 +      [[base::apple::FrameworkBundle() privateFrameworksPath]
 +          stringByAppendingPathComponent:@"Sparkle.framework"],
-+      
++
 +      // Path 2: In the main app's Frameworks directory
 +      [[base::apple::OuterBundle() privateFrameworksPath]
 +          stringByAppendingPathComponent:@"Sparkle.framework"],
-+      
++
 +      // Path 3: Relative to the framework bundle
-+      [[[base::apple::FrameworkBundle() bundlePath] 
++      [[[base::apple::FrameworkBundle() bundlePath]
 +          stringByAppendingPathComponent:@"Frameworks"]
 +          stringByAppendingPathComponent:@"Sparkle.framework"]
 +    ];
 +
 +    NSBundle* sparkle_bundle = nil;
-+    
++
 +    LOG(INFO) << "SparkleGlue: Searching for Sparkle framework...";
 +    for (NSString* path in searchPaths) {
 +      LOG(INFO) << "SparkleGlue: Checking path: " << base::SysNSStringToUTF8(path);
@@ -420,7 +420,7 @@ index 0000000000000..cf39a1f49a55a
 +      LOG(INFO) << "SparkleGlue: Loading Sparkle bundle...";
 +      NSError* load_error = nil;
 +      if (![sparkle_bundle loadAndReturnError:&load_error]) {
-+        LOG(ERROR) << "SparkleGlue: Failed to load Sparkle bundle: " 
++        LOG(ERROR) << "SparkleGlue: Failed to load Sparkle bundle: "
 +                   << base::SysNSStringToUTF8([load_error localizedDescription]);
 +        return NO;
 +      }
@@ -435,7 +435,7 @@ index 0000000000000..cf39a1f49a55a
 +      LOG(ERROR) << "SparkleGlue: Could not find SUUpdater class in Sparkle framework";
 +      return NO;
 +    }
-+    LOG(INFO) << "SparkleGlue: Found SUUpdater class"; 
++    LOG(INFO) << "SparkleGlue: Found SUUpdater class";
 +
 +    // Use performSelector to avoid direct class dependencies
 +    SEL sharedUpdaterSelector = NSSelectorFromString(@"sharedUpdater");
@@ -444,12 +444,12 @@ index 0000000000000..cf39a1f49a55a
 +      return NO;
 +    }
 +    LOG(INFO) << "SparkleGlue: SUUpdater responds to sharedUpdater selector";
-+    
++
 +#pragma clang diagnostic push
 +#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 +    _updater = [updater_class performSelector:sharedUpdaterSelector];
 +#pragma clang diagnostic pop
-+    
++
 +    if (!_updater) {
 +      LOG(ERROR) << "SparkleGlue: Failed to get shared SUUpdater instance";
 +      return NO;
@@ -457,9 +457,9 @@ index 0000000000000..cf39a1f49a55a
 +
 +    LOG(INFO) << "SparkleGlue: Successfully obtained SUUpdater instance";
 +    return YES;
-+    
++
 +  } @catch (NSException* exception) {
-+    LOG(ERROR) << "SparkleGlue: Exception in loadSparkleFramework: " 
++    LOG(ERROR) << "SparkleGlue: Exception in loadSparkleFramework: "
 +               << base::SysNSStringToUTF8([exception description]);
 +    return NO;
 +  } @catch (...) {
@@ -561,7 +561,7 @@ index 0000000000000..cf39a1f49a55a
 +    LOG(INFO) << "SparkleGlue: Registration complete";
 +
 +  } @catch (NSException* exception) {
-+    LOG(ERROR) << "SparkleGlue: Exception in registerWithSparkle: " 
++    LOG(ERROR) << "SparkleGlue: Exception in registerWithSparkle: "
 +               << base::SysNSStringToUTF8([exception description]);
 +    _registered = NO;
 +  } @catch (...) {
@@ -578,7 +578,7 @@ index 0000000000000..cf39a1f49a55a
 +    }
 +
 +    LOG(INFO) << "SparkleGlue: Starting update check";
-+    
++
 +    SEL checkSelector = NSSelectorFromString(@"checkForUpdatesInBackground");
 +    if ([_updater respondsToSelector:checkSelector]) {
 +      LOG(INFO) << "SparkleGlue: Calling checkForUpdatesInBackground";
@@ -590,7 +590,7 @@ index 0000000000000..cf39a1f49a55a
 +      LOG(ERROR) << "SparkleGlue: SUUpdater does not respond to checkForUpdatesInBackground";
 +    }
 +  } @catch (NSException* exception) {
-+    LOG(ERROR) << "SparkleGlue: Exception in checkForUpdates: " 
++    LOG(ERROR) << "SparkleGlue: Exception in checkForUpdates: "
 +               << base::SysNSStringToUTF8([exception description]);
 +  }
 +}
@@ -636,7 +636,7 @@ index 0000000000000..cf39a1f49a55a
 +- (void)updater:(SUUpdater*)updater didFinishLoadingAppcast:(SUAppcast*)appcast {
 +  @try {
 +    LOG(INFO) << "SparkleGlue: didFinishLoadingAppcast - appcast loaded successfully";
-+    
++
 +    // Notify version updater that we're still checking
 +    if (auto* versionUpdater = _versionUpdater.get()) {
 +      versionUpdater->OnSparkleStatusChange(kSparkleStatusChecking);
@@ -649,7 +649,7 @@ index 0000000000000..cf39a1f49a55a
 +- (void)updater:(SUUpdater*)updater didFindValidUpdate:(SUAppcastItem*)item {
 +  @try {
 +    LOG(INFO) << "SparkleGlue: didFindValidUpdate - update available";
-+    
++
 +    if (auto* versionUpdater = _versionUpdater.get()) {
 +      versionUpdater->OnSparkleStatusChange(kSparkleStatusUpdateFound);
 +    }
@@ -672,7 +672,7 @@ index 0000000000000..cf39a1f49a55a
 +- (void)updater:(SUUpdater*)updater willInstallUpdate:(SUAppcastItem*)item {
 +  @try {
 +    LOG(INFO) << "SparkleGlue: willInstallUpdate called";
-+    
++
 +    if (auto* versionUpdater = _versionUpdater.get()) {
 +      versionUpdater->OnSparkleStatusChange(kSparkleStatusReadyToInstall);
 +    }
@@ -688,33 +688,33 @@ index 0000000000000..cf39a1f49a55a
 +    NSString* errorDomain = [error domain];
 +    NSInteger errorCode = [error code];
 +    NSDictionary* userInfo = [error userInfo];
-+    
++
 +    LOG(ERROR) << "SparkleGlue: didAbortWithError called";
 +    LOG(ERROR) << "  Error domain: " << base::SysNSStringToUTF8(errorDomain);
 +    LOG(ERROR) << "  Error code: " << errorCode;
 +    LOG(ERROR) << "  Error description: " << base::SysNSStringToUTF8(errorDesc);
-+    
++
 +    // Log additional error details from userInfo
 +    if (userInfo) {
 +      for (NSString* key in userInfo) {
 +        id value = userInfo[key];
 +        if ([value isKindOfClass:[NSString class]]) {
-+          LOG(ERROR) << "  UserInfo[" << base::SysNSStringToUTF8(key) << "]: " 
++          LOG(ERROR) << "  UserInfo[" << base::SysNSStringToUTF8(key) << "]: "
 +                     << base::SysNSStringToUTF8((NSString*)value);
 +        }
 +      }
 +    }
-+    
++
 +    // Check for specific signature verification errors
 +    if ([errorDomain isEqualToString:@"SUSparkleErrorDomain"]) {
 +      LOG(ERROR) << "SparkleGlue: This is a Sparkle-specific error";
-+      
++
 +      // Common Sparkle error codes
 +      switch (errorCode) {
 +        case 3000:  // SUSignatureError
 +          LOG(ERROR) << "SparkleGlue: Signature verification failed (SUSignatureError)";
 +          break;
-+        case 3001:  // SUAuthenticationError  
++        case 3001:  // SUAuthenticationError
 +          LOG(ERROR) << "SparkleGlue: Authentication failed (SUAuthenticationError)";
 +          break;
 +        case 3002:  // SUMissingUpdateError
@@ -736,9 +736,9 @@ index 0000000000000..cf39a1f49a55a
 +          LOG(ERROR) << "SparkleGlue: Unknown Sparkle error code: " << errorCode;
 +      }
 +    }
-+    
++
 +    // Check if this is actually an error or just "no update needed"
-+    if ([errorDesc containsString:@"up to date"] || 
++    if ([errorDesc containsString:@"up to date"] ||
 +        [errorDesc containsString:@"You're up to date"]) {
 +      LOG(INFO) << "SparkleGlue: Not really an error - no update needed";
 +      if (auto* versionUpdater = _versionUpdater.get()) {
@@ -748,7 +748,7 @@ index 0000000000000..cf39a1f49a55a
 +      // This is a real error
 +      // Notify the version updater
 +      if (auto* versionUpdater = _versionUpdater.get()) {
-+        versionUpdater->OnSparkleStatusChange(kSparkleStatusError, 
++        versionUpdater->OnSparkleStatusChange(kSparkleStatusError,
 +                                               base::SysNSStringToUTF8(errorDesc));
 +      }
 +    }
@@ -886,7 +886,7 @@ index b14d64308080f..bf0e13928f08e 100644
        "webui/settings/mac_system_settings_handler.h",
 @@ -3455,6 +3457,7 @@ static_library("ui") {
      allow_circular_includes_from += [ "//chrome/browser/apps/app_shim" ]
- 
+
      deps += [
 +      "//chrome/browser:sparkle_buildflags",
        "//chrome/browser/apps/app_shim",
@@ -941,7 +941,7 @@ index 0000000000000..bdb3d62440d0d
 +
 +  // Called by SparkleGlue to notify of status changes
 +  void OnSparkleStatusChange(SparkleUpdateStatus status, const std::string& error_message = "");
-+  
++
 +  // Called by SparkleGlue to notify of download progress
 +  void OnDownloadProgress(double progress);
 +
@@ -1013,15 +1013,15 @@ index 0000000000000..889b72abb254a
 +  if (status_callback_.is_null()) {
 +    return;
 +  }
-+  
++
 +  // Convert progress (0.0-1.0) to percentage (0-100)
 +  int percentage = static_cast<int>(progress * 100);
-+  
++
 +  VLOG(1) << "Sparkle: Download progress " << percentage << "%";
-+  
++
 +  // Create a progress message
 +  std::u16string progress_message = base::UTF8ToUTF16("Downloading update: " + std::to_string(percentage) + "%");
-+  
++
 +  // Update status with download progress
 +  // The status callback parameters are:
 +  // (Status, progress, rollback, powerwash, version, update_size, message)
@@ -1078,9 +1078,9 @@ index 992157e28e8f5..4df0133b28fdb 100644
 --- a/chrome/browser/ui/webui/help/version_updater_mac.mm
 +++ b/chrome/browser/ui/webui/help/version_updater_mac.mm
 @@ -6,6 +6,15 @@
- 
+
  #import <Foundation/Foundation.h>
- 
+
 +// Include Sparkle updater if available
 +#include "base/command_line.h"
 +#include "chrome/browser/sparkle_buildflags.h"
@@ -1111,9 +1111,9 @@ index 992157e28e8f5..4df0133b28fdb 100644
 +    SetupSystemUpdater();
 +  }
  };
- 
+
  }  // namespace
- 
+
  std::unique_ptr<VersionUpdater> VersionUpdater::Create(
      content::WebContents* /* web_contents */) {
 +#if BUILDFLAG(ENABLE_SPARKLE)
@@ -1159,7 +1159,7 @@ index 0000000000000..5c09b44984519
 +# Configuration for including Sparkle headers
 +config("sparkle_config") {
 +  framework_dirs = [ "$root_out_dir" ]
-+  
++
 +  # Add the framework search path
 +  ldflags = [
 +    "-F",
@@ -1174,7 +1174,7 @@ index 0000000000000..5c09b44984519
 +# Target for apps that want to use Sparkle
 +group("sparkle_framework") {
 +  public_deps = [ ":sparkle" ]
-+  
++
 +  public_configs = [ ":sparkle_config" ]
 +}
 +
@@ -1184,10 +1184,10 @@ index 0000000000000..5c09b44984519
 +    "Sparkle.framework/Versions/B/Resources/Autoupdate.app",
 +    "Sparkle.framework/Versions/B/Resources/Updater.app",
 +  ]
-+  
++
 +  outputs = [ "{{bundle_contents_dir}}/Frameworks/Sparkle.framework/Resources/{{source_file_part}}" ]
-+} 
++}
 \ No newline at end of file
--- 
+--
 2.49.0
 

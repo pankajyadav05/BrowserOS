@@ -29,7 +29,7 @@ index 4dd749643041a..5d3da32f57f81 100644
 --- a/chrome/browser/ui/toolbar/toolbar_pref_names.cc
 +++ b/chrome/browser/ui/toolbar/toolbar_pref_names.cc
 @@ -14,14 +14,7 @@ namespace toolbar {
- 
+
  void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
    base::Value::List default_pinned_actions;
 -  const std::optional<std::string>& chrome_labs_action =
@@ -41,9 +41,9 @@ index 4dd749643041a..5d3da32f57f81 100644
 -    default_pinned_actions.Append(chrome_labs_action.value());
 -  }
 +  // Chrome Labs is no longer pinned by default
- 
+
    if (features::HasTabSearchToolbarButton()) {
      const std::optional<std::string>& tab_search_action =
--- 
+--
 2.49.0
 
