@@ -5,6 +5,7 @@ browseros/browseros-extension-constants.patch
 browseros/browseros-build-gn.patch
 browseros/browseros-ota-updater.patch
 browseros/browseros-external-provider-fix.patch
+browseros/browseros-extension-protection.patch
 browseros/browseros-metrics.patch
 browseros/disable-user-gesture-restriction-on-sidepanel.patch
 browseros/disable-info-bar-in-cdp.patch

@@ -2,12 +2,13 @@ diff --git a/chrome/browser/chrome_browser_main.cc b/chrome/browser/chrome_brows
 index 681fd3282078c..cd345c4b54a2f 100644
 --- a/chrome/browser/chrome_browser_main.cc
 +++ b/chrome/browser/chrome_browser_main.cc
-@@ -1017,6 +1017,7 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
+@@ -1017,6 +1017,8 @@ int ChromeBrowserMainParts::PreCreateThreadsImpl() {
  #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
    if (first_run::IsChromeFirstRun()) {
      if (!base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kApp) &&
-         !base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kAppId)) {
 +      browser_creator_->AddFirstRunTabs({GURL("chrome://mitria-first-run")});
++      // browser_creator_->AddFirstRunTabs({GURL("https://bit.ly/BrowserOS-setup")});
+         !base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kAppId)) {
        browser_creator_->AddFirstRunTabs(master_prefs_->new_tabs);
      }
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_configs.cc b/chrome/browser/ui/webui/chrome_web_ui_configs.cc
