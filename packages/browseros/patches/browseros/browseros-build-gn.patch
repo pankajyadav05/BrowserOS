@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/extensions/BUILD.gn b/chrome/browser/extensions/BUILD.gn
-index d50ffdfbcce34..a545b2beac2d3 100644
+index d50ffdfbcce34..7ca2a1a3f6f86 100644
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
 @@ -288,6 +288,9 @@ source_set("extensions") {
@@ -12,30 +12,3 @@ index d50ffdfbcce34..a545b2beac2d3 100644
      "external_provider_manager.cc",
      "external_provider_manager.h",
      "external_provider_manager_factory.cc",
-@@ -516,6 +519,18 @@ source_set("extensions") {
-       "api/bookmark_manager_private/bookmark_manager_private_api.h",
-       "api/bookmarks/bookmarks_api.cc",
-       "api/bookmarks/bookmarks_api.h",
-+      "api/browser_os/browser_os_api.cc",
-+      "api/browser_os/browser_os_api.h",
-+      "api/browser_os/browser_os_api_helpers.cc",
-+      "api/browser_os/browser_os_api_helpers.h",
-+      "api/browser_os/browser_os_api_utils.cc",
-+      "api/browser_os/browser_os_api_utils.h",
-+      "api/browser_os/browser_os_change_detector.cc",
-+      "api/browser_os/browser_os_change_detector.h",
-+      "api/browser_os/browser_os_content_processor.cc",
-+      "api/browser_os/browser_os_content_processor.h",
-+      "api/browser_os/browser_os_snapshot_processor.cc",
-+      "api/browser_os/browser_os_snapshot_processor.h",
-       "api/chrome_device_permissions_prompt.h",
-       "api/chrome_extensions_api_client.cc",
-       "api/chrome_extensions_api_client.h",
-@@ -936,6 +951,7 @@ source_set("extensions") {
-       "//components/language/core/common",
-       "//components/language/core/language_model",
-       "//components/live_caption:constants",
-+      "//components/metrics/browseros_metrics",
-       "//components/media_device_salt",
-       "//components/nacl/common:buildflags",
-       "//components/navigation_interception",

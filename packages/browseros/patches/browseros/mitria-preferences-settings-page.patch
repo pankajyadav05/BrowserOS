@@ -314,8 +314,8 @@ index 0000000000000..f7766f378ba0a
 +        <cr-icon icon="settings:settings"></cr-icon>
 +      </div>
 +      <div>
-+        <h1 class="page-title">BrowserOS Preferences</h1>
-+        <div class="page-subtitle">Configure BrowserOS-specific settings</div>
++        <h1 class="page-title">Mitria Preferences</h1>
++        <div class="page-subtitle">Configure Mitria-specific settings</div>
 +      </div>
 +    </div>
 +    
@@ -328,7 +328,7 @@ index 0000000000000..f7766f378ba0a
 +        <div class="prefs-toggle-row">
 +          <div>
 +            <div class="prefs-toggle-label">Show labels in toolbar</div>
-+            <div class="prefs-toggle-sublabel">Display text labels next to BrowserOS toolbar icons</div>
++            <div class="prefs-toggle-sublabel">Display text labels next to Mitria toolbar icons</div>
 +            <div class="prefs-toggle-sublabel" style="color: var(--google-orange-600); font-weight: 500; margin-top: 4px;">
 +              NOTE: Needs browser restart
 +            </div>
@@ -673,8 +673,8 @@ index e8dd01dc3e7b6..c8996cc719973 100644
 @@ -184,6 +184,7 @@ function createRoutes(): SettingsRoutes {
    r.BASIC = new Route('/');
    r.ABOUT = new Route('/help', loadTimeData.getString('aboutPageTitle'));
-   r.NXTSCAPE = new Route('/browseros-ai', 'BrowserOS AI Settings');
-+  r.BROWSEROS_PREFS = new Route('/browseros-settings', 'BrowserOS Settings');
+   r.NXTSCAPE = new Route('/mitria-ai', 'Mitria AI Settings');
++  r.BROWSEROS_PREFS = new Route('/mitria-settings', 'Mitria Settings');
  
    r.SEARCH = r.BASIC.createSection(
        '/search', 'search', loadTimeData.getString('searchPageTitle'));
@@ -765,13 +765,13 @@ index 8f123acf9b322..a1f1454c2bf2a 100644
 --- a/chrome/browser/resources/settings/settings_menu/settings_menu.html
 +++ b/chrome/browser/resources/settings/settings_menu/settings_menu.html
 @@ -63,6 +63,12 @@
-           BrowserOS AI
+           Mitria AI
            <cr-ripple></cr-ripple>
          </a>
-+        <a role="menuitem" id="browseros-prefs-menu" href="/browseros-settings"
++        <a role="menuitem" id="browseros-prefs-menu" href="/mitria-settings"
 +            class="cr-nav-menu-item">
 +          <cr-icon icon="settings:system"></cr-icon>
-+          BrowserOS Settings
++          Mitria Settings
 +          <cr-ripple></cr-ripple>
 +        </a>
          <a role="menuitem" id="autofill" href="/autofill"
